@@ -4,6 +4,7 @@ import com.sun.istack.internal.NotNull;
 import getting.media.MediaConvertParameters;
 import getting.media.MediaConvertResult;
 import getting.media.MediaConverter;
+import getting.ui.HelpWizard;
 import getting.ui.SmartFileChooser;
 import getting.util.Looper;
 import getting.util.Message;
@@ -19,6 +20,7 @@ import org.controlsfx.control.NotificationPane;
 import res.Resource;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -101,7 +103,8 @@ public class Controller implements Initializable {
     }
 
     @FXML
-    private void onAbout(ActionEvent event) {
+    private void onAbout(ActionEvent event) throws IOException {
+        new HelpWizard(gifFrameRate.getScene().getWindow()).show();
     }
 
     @FXML
