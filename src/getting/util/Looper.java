@@ -8,15 +8,15 @@ import java.util.List;
 public class Looper {
 
     public static void prepare() {
-        if (LOOPERS.get() != null) {
+        if (LOOPER_THREAD_LOCAL.get() != null) {
             throw new IllegalStateException("can not call Looper.prepare() twice");
         }
 
-        LOOPERS.set(new Looper());
+        LOOPER_THREAD_LOCAL.set(new Looper());
         loop();
     }
 
-    private final static ThreadLocal<Looper> LOOPERS = new ThreadLocal<>();
+    private final static ThreadLocal<Looper> LOOPER_THREAD_LOCAL = new ThreadLocal<>();
 
     private Looper() {
     }
@@ -81,11 +81,11 @@ public class Looper {
     }
 
     private static Looper myLoop() {
-        if (LOOPERS.get() == null) {
+        if (LOOPER_THREAD_LOCAL.get() == null) {
             throw new IllegalStateException("call Looper.prepare() first");
         }
 
-        return LOOPERS.get();
+        return LOOPER_THREAD_LOCAL.get();
     }
 
     private final Object lock = new Object();

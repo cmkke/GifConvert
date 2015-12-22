@@ -11,7 +11,7 @@ import java.util.prefs.Preferences;
 
 public class SmartFileChooser {
 
-    private FileChooser fileChooser = new FileChooser();
+    private final FileChooser fileChooser = new FileChooser();
 
     {
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("视频文件", MediaConverter

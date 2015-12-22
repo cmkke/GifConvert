@@ -38,7 +38,7 @@ public class MediaConverter {
         }
     }
 
-    private static void ensureConverterAvaliable() {
+    private static void ensureConverterAvailable() {
         if (CONVERTER.exists()) {
             System.out.println("media converter exist");
             return;
@@ -95,7 +95,7 @@ public class MediaConverter {
 
     public static void convert(@NotNull MediaConvertParameters convertInfo, @NotNull Callback<MediaConvertResult, Void>
             notify) {
-        ensureConverterAvaliable();
+        ensureConverterAvailable();
 
         final long startTime = System.currentTimeMillis();
         final File gifFile = new File(convertInfo.getVideoFile().getParent(), convertInfo.getVideoFile().getName() +
@@ -114,6 +114,5 @@ public class MediaConverter {
 
         notify.call(new MediaConvertResult(System.currentTimeMillis() - startTime, gifFile));
     }
-
 
 }
