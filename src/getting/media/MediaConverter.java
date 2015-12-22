@@ -52,7 +52,7 @@ public class MediaConverter {
     public static final List<Integer> SUPPORT_GIF_FRAME_RATE = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12,
             13, 14, 15);
     public static final Integer DEFAULT_GIF_FRAME_RATE = 8;
-    public static final List<String> SUPPORT_VIDEO_FORMAT = Arrays.asList("*.mp4", "*.avi");
+    public static final List<String> SUPPORT_VIDEO_FORMAT = Arrays.asList("*.mp4", "*.avi", "*.mkv");
 
     private static MediaInfo getVideoInfo(InputStream stream) {
         try {
