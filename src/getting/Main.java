@@ -21,8 +21,6 @@ public class Main extends Application {
         primaryStage.getIcons().setAll(new Image(Resource.class.getResource("app_icon.png").toExternalForm()));
         primaryStage.setScene(new Scene(root));
         primaryStage.show();
-
-//        ScenicView.show(root);
     }
 
 }
