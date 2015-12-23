@@ -36,6 +36,8 @@ public class Controller implements Initializable {
     private ComboBox<Integer> gifFrameRate;
     @FXML
     private ComboBox<Double> gifScale;
+    @FXML
+    private ComboBox<Integer> gifTime;
 
     private File videoNeedConvert;
 
@@ -68,6 +70,9 @@ public class Controller implements Initializable {
 
         gifScale.getItems().addAll(MediaConverter.SUPPORT_GIF_SCALE);
         gifScale.setValue(MediaConverter.DEFAULT_GIF_SCALE);
+
+        gifTime.getItems().addAll(MediaConverter.SUPPORT_GIF_TIME);
+        gifTime.setValue(MediaConverter.DEFAULT_GIF_TIME);
     }
 
     @FXML
@@ -79,6 +84,11 @@ public class Controller implements Initializable {
     private void onChooseVideo(ActionEvent event) {
         videoNeedConvert = new SmartFileChooser().showOpenDialog(gifPreview.getScene().getWindow());
 
+        reloadConvert();
+    }
+
+    @FXML
+    private void onChooseTime(ActionEvent event) {
         reloadConvert();
     }
 
@@ -94,7 +104,7 @@ public class Controller implements Initializable {
             public void run() {
                 MediaConverter.convert(new MediaConvertParameters(videoNeedConvert, gifFrameRate
                                 .getValue(), gifScale
-                                .getValue()),
+                                .getValue(), gifTime.getValue()),
                         chooseVideoCallback);
             }
 

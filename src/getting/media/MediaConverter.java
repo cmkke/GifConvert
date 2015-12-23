@@ -47,11 +47,16 @@ public class MediaConverter {
         copyConverterToTempDirectory();
     }
 
+    public static final List<Integer> SUPPORT_GIF_TIME = Arrays.asList(5, 10, 15, 20);
+    public static final Integer DEFAULT_GIF_TIME = 10;
+
     public static final List<Double> SUPPORT_GIF_SCALE = Arrays.asList(0.25, 0.5, 0.75, 1.0);
     public static final Double DEFAULT_GIF_SCALE = 1.0;
+
     public static final List<Integer> SUPPORT_GIF_FRAME_RATE = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12,
             13, 14, 15);
     public static final Integer DEFAULT_GIF_FRAME_RATE = 8;
+
     public static final List<String> SUPPORT_VIDEO_FORMAT = Arrays.asList("*.mp4", "*.avi", "*.mkv");
 
     private static MediaInfo getVideoInfo(InputStream stream) {
@@ -101,7 +106,8 @@ public class MediaConverter {
         final File gifFile = new File(convertInfo.getVideoFile().getParent(), convertInfo.getVideoFile().getName() +
                 ".gif");
         final String convertCommand = CONVERTER.getAbsolutePath() + " -y -i \"" + convertInfo.getVideoFile()
-                .getAbsolutePath() + "\" -t 10 -r " + convertInfo.getGifFrameRate() + " -vf scale=iw*" + convertInfo
+                .getAbsolutePath() + "\" -t " + convertInfo.getGifTime() + " -r " + convertInfo.getGifFrameRate() + "" +
+                " -vf scale=iw*" + convertInfo
                 .getGifScale() + ":ih*" + convertInfo.getGifScale() + " \"" + gifFile.getAbsolutePath() + "\"";
         System.out.println(convertCommand);
         try {

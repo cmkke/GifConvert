@@ -38,7 +38,7 @@
                             <children>
                                 <GridPane>
                                     <columnConstraints>
-                                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="40.0"/>
+                                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="60.0"/>
                                         <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
                                     </columnConstraints>
                                     <rowConstraints>
@@ -54,6 +54,10 @@
                                         <Label text="缩放：" GridPane.rowIndex="1"/>
                                         <ComboBox fx:id="gifScale" onAction="#onChooseScale" prefWidth="150.0"
                                                   GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+
+                                        <Label text="时长(s)：" GridPane.rowIndex="2"/>
+                                        <ComboBox fx:id="gifTime" onAction="#onChooseTime" prefWidth="150.0"
+                                                  GridPane.columnIndex="1" GridPane.rowIndex="2"/>
                                     </children>
                                 </GridPane>
                             </children>
