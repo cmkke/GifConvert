@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="module_gifconvert" default="compile.module.gifconvert">
+  <dirname property="module.gifconvert.basedir" file="${ant.file.module_gifconvert}"/>
+  
+  <property name="module.jdk.home.gifconvert" value="${project.jdk.home}"/>
+  <property name="module.jdk.bin.gifconvert" value="${project.jdk.bin}"/>
+  <property name="module.jdk.classpath.gifconvert" value="${project.jdk.classpath}"/>
+  
+  <property name="compiler.args.gifconvert" value="-encoding UTF-8 -source 8 -target 8 ${compiler.args}"/>
+  
+  <property name="gifconvert.output.dir" value="${module.gifconvert.basedir}/out/production/GifConvert"/>
+  <property name="gifconvert.testoutput.dir" value="${module.gifconvert.basedir}/out/test/GifConvert"/>
+  
+  <path id="gifconvert.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="gifconvert.module.production.classpath">
+    <path refid="${module.jdk.classpath.gifconvert}"/>
+    <path refid="library.libs.classpath"/>
+    <pathelement location="${basedir}/libs/annotations-7.0.3.jar"/>
+  </path>
+  
+  <path id="gifconvert.runtime.production.module.classpath">
+    <pathelement location="${gifconvert.output.dir}"/>
+    <path refid="library.libs.classpath"/>
+    <pathelement location="${basedir}/libs/annotations-7.0.3.jar"/>
+  </path>
+  
+  <path id="gifconvert.module.classpath">
+    <path refid="${module.jdk.classpath.gifconvert}"/>
+    <pathelement location="${gifconvert.output.dir}"/>
+    <path refid="library.libs.classpath"/>
+    <pathelement location="${basedir}/libs/annotations-7.0.3.jar"/>
+  </path>
+  
+  <path id="gifconvert.runtime.module.classpath">
+    <pathelement location="${gifconvert.testoutput.dir}"/>
+    <pathelement location="${gifconvert.output.dir}"/>
+    <path refid="library.libs.classpath"/>
+    <pathelement location="${basedir}/libs/annotations-7.0.3.jar"/>
+  </path>
+  
+  
+  <patternset id="excluded.from.module.gifconvert">
+    <patternset refid="ignored.files"/>
+  </patternset>
+  
+  <patternset id="excluded.from.compilation.gifconvert">
+    <patternset refid="excluded.from.module.gifconvert"/>
+  </patternset>
+  
+  <path id="gifconvert.module.sourcepath">
+    <dirset dir="${module.gifconvert.basedir}">
+      <include name="src"/>
+    </dirset>
+  </path>
+  
+  
+  <target name="compile.module.gifconvert" depends="compile.module.gifconvert.production,compile.module.gifconvert.tests" description="Compile module GifConvert"/>
+  
+  <target name="compile.module.gifconvert.production" depends="register.custom.compilers" description="Compile module GifConvert; production classes">
+    <mkdir dir="${gifconvert.output.dir}"/>
+    <javac2 destdir="${gifconvert.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.gifconvert}/javac">
+      <compilerarg line="${compiler.args.gifconvert}"/>
+      <bootclasspath refid="gifconvert.module.bootclasspath"/>
+      <classpath refid="gifconvert.module.production.classpath"/>
+      <src refid="gifconvert.module.sourcepath"/>
+      <patternset refid="excluded.from.compilation.gifconvert"/>
+    </javac2>
+    
+    <copy todir="${gifconvert.output.dir}">
+      <fileset dir="${module.gifconvert.basedir}/src">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="compile.module.gifconvert.tests" depends="register.custom.compilers,compile.module.gifconvert.production" description="compile module GifConvert; test classes" unless="skip.tests"/>
+  
+  <target name="clean.module.gifconvert" description="cleanup module">
+    <delete dir="${gifconvert.output.dir}"/>
+    <delete dir="${gifconvert.testoutput.dir}"/>
+  </target>
+</project>
