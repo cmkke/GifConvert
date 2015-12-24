@@ -16,19 +16,12 @@ public class MediaConvertParameters {
         this.gifTime = gifTime;
     }
 
-    public double getGifScale() {
-        return gifScale;
+    public String buildConvertCommand() {
+        return " -y -i \"" + videoFile.getAbsolutePath() + "\" -t " + gifTime + " -r " + gifFrameRate + " -vf " +
+                "scale=iw*" + gifScale + ":ih*" + gifScale + " \"" + buildGifFile().getAbsolutePath() + "\"";
     }
 
-    public File getVideoFile() {
-        return videoFile;
-    }
-
-    public int getGifFrameRate() {
-        return gifFrameRate;
-    }
-
-    public int getGifTime() {
-        return gifTime;
+    public File buildGifFile() {
+        return new File(videoFile.getParent(), videoFile.getName() + ".gif");
     }
 }

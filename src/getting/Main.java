@@ -6,7 +6,6 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
-import res.Resource;
 
 public class Main extends Application {
 
@@ -18,7 +17,7 @@ public class Main extends Application {
     public void start(Stage primaryStage) throws Exception {
         Parent root = FXMLLoader.load(getClass().getResource("sample.fxml"));
         primaryStage.setTitle("视频转Gif");
-        primaryStage.getIcons().setAll(new Image(Resource.class.getResource("app_icon.png").toExternalForm()));
+        primaryStage.getIcons().setAll(new Image(Main.class.getResource("app_icon.png").toExternalForm()));
         primaryStage.setScene(new Scene(root));
         primaryStage.show();
     }

@@ -10,7 +10,7 @@
     <center>
         <ImageView fitWidth="600" pickOnBounds="true" preserveRatio="true" BorderPane.alignment="CENTER">
             <image>
-                <Image url="@../../res/help_1.jpg"/>
+                <Image url="@help_1.jpg"/>
             </image>
             <BorderPane.margin>
                 <Insets bottom="20.0" left="20.0" right="20.0" top="20.0"/>

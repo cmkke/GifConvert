@@ -9,7 +9,7 @@
 
 <NotificationPane prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/8"
                   xmlns:fx="http://javafx.com/fxml/1"
-                  fx:controller="getting.Controller" fx:id="notificationPane" showFromTop="false">
+                  fx:controller="getting.control.Controller" fx:id="notificationPane" showFromTop="false">
     <content>
 
         <BorderPane>
@@ -75,7 +75,7 @@
                         <ImageView fx:id="gifPreview" fitHeight="500.0" fitWidth="500.0" pickOnBounds="true"
                                    preserveRatio="true" BorderPane.alignment="CENTER">
                             <image>
-                                <Image backgroundLoading="true" url="@../res/loading5.gif"/>
+                                <Image backgroundLoading="true" url="@control/loading5.gif"/>
                             </image>
                         </ImageView>
                     </center>

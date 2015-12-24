@@ -1,6 +1,7 @@
 package getting.media;
 
 import com.sun.istack.internal.NotNull;
+import getting.executor.Executor;
 import javafx.util.Callback;
 
 import java.io.*;
@@ -12,39 +13,9 @@ import java.util.regex.Pattern;
 public class MediaConverter {
 
     private static final String CONVERTER_NAME = "ffmpeg.exe";
-    private static final File CONVERTER = new File(System.getProperty("java.io.tmpdir"), CONVERTER_NAME);
+    private static final Executor MEDIA_CONVERTER_EXECUTOR = new Executor(MediaConverter.class, CONVERTER_NAME);
 
     private MediaConverter() {
-    }
-
-    private static void copyConverterToTempDirectory() {
-        try {
-            OutputStream outputStream = new FileOutputStream(CONVERTER);
-            InputStream inputStream = MediaConverter.class.getResourceAsStream(CONVERTER_NAME);
-            byte[] buffer = new byte[4096];
-            while (true) {
-                int readCount = inputStream.read(buffer);
-                if (readCount == -1) {
-                    break;
-                }
-
-                outputStream.write(buffer, 0, readCount);
-            }
-            inputStream.close();
-            outputStream.close();
-            System.out.println("converter has copied to temp directory");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private static void ensureConverterAvailable() {
-        if (CONVERTER.exists()) {
-            System.out.println("media converter exist");
-            return;
-        }
-
-        copyConverterToTempDirectory();
     }
 
     public static final List<Integer> SUPPORT_GIF_TIME = Arrays.asList(5, 10, 15, 20);
@@ -57,68 +28,52 @@ public class MediaConverter {
             13, 14, 15);
     public static final Integer DEFAULT_GIF_FRAME_RATE = 8;
 
-    public static final List<String> SUPPORT_VIDEO_FORMAT = Arrays.asList("*.mp4", "*.avi", "*.mkv");
+    public static final List<String> SUPPORT_VIDEO_FORMAT = Arrays.asList("*.mp4", "*.avi", "*.mkv", "*.mov");
 
-    private static MediaInfo getVideoInfo(InputStream stream) {
-        try {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
-
-            boolean readingVideoInfo = false;
-            while (true) {
-                String message = reader.readLine();
-                if (message == null) {
-                    break;
-                }
-
-                if (message.startsWith("Input")) {
-                    readingVideoInfo = true;
-                }
-
-                if (message.startsWith("Output")) {
-                    readingVideoInfo = false;
-                }
-
-                if (readingVideoInfo) {
-                    for (String token : message.split(",")) {
-                        Matcher matcher = VIDEO_SIZE_PATTERN.matcher(token);
-                        if (matcher.find()) {
-                            final int width = Integer.parseInt(matcher.group(1));
-                            final int height = Integer.parseInt(matcher.group(2));
-                            return new MediaInfo(width, height);
-                        }
-                    }
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    private static final Pattern VIDEO_SIZE_PATTERN = Pattern.compile("(\\d{2,4})x(\\d{2,4})", Pattern
-            .CASE_INSENSITIVE);
+//    private static MediaInfo getVideoInfo(InputStream stream) {
+//        try {
+//            BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+//
+//            boolean readingVideoInfo = false;
+//            while (true) {
+//                String message = reader.readLine();
+//                if (message == null) {
+//                    break;
+//                }
+//
+//                if (message.startsWith("Input")) {
+//                    readingVideoInfo = true;
+//                }
+//
+//                if (message.startsWith("Output")) {
+//                    readingVideoInfo = false;
+//                }
+//
+//                if (readingVideoInfo) {
+//                    for (String token : message.split(",")) {
+//                        Matcher matcher = VIDEO_SIZE_PATTERN.matcher(token);
+//                        if (matcher.find()) {
+//                            final int width = Integer.parseInt(matcher.group(1));
+//                            final int height = Integer.parseInt(matcher.group(2));
+//                            return new MediaInfo(width, height);
+//                        }
+//                    }
+//                }
+//            }
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//        return null;
+//    }
+//
+//    private static final Pattern VIDEO_SIZE_PATTERN = Pattern.compile("(\\d{2,4})x(\\d{2,4})", Pattern
+//            .CASE_INSENSITIVE);
 
     public static void convert(@NotNull MediaConvertParameters convertInfo, @NotNull Callback<MediaConvertResult, Void>
             notify) {
-        ensureConverterAvailable();
-
         final long startTime = System.currentTimeMillis();
-        final File gifFile = new File(convertInfo.getVideoFile().getParent(), convertInfo.getVideoFile().getName() +
-                ".gif");
-        final String convertCommand = CONVERTER.getAbsolutePath() + " -y -i \"" + convertInfo.getVideoFile()
-                .getAbsolutePath() + "\" -t " + convertInfo.getGifTime() + " -r " + convertInfo.getGifFrameRate() + "" +
-                " -vf scale=iw*" + convertInfo
-                .getGifScale() + ":ih*" + convertInfo.getGifScale() + " \"" + gifFile.getAbsolutePath() + "\"";
-        System.out.println(convertCommand);
-        try {
-            Process converterProcess = Runtime.getRuntime().exec(convertCommand);
-            getVideoInfo(converterProcess.getErrorStream());
-            converterProcess.waitFor();
-        } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        notify.call(new MediaConvertResult(System.currentTimeMillis() - startTime, gifFile));
+        MEDIA_CONVERTER_EXECUTOR.execute(convertInfo.buildConvertCommand());
+        notify.call(new MediaConvertResult(System.currentTimeMillis() - startTime, convertInfo.buildGifFile()));
     }
 
 }

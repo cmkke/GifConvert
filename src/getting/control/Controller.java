@@ -1,4 +1,4 @@
-package getting;
+package getting.control;
 
 import com.sun.istack.internal.NotNull;
 import getting.media.MediaConvertParameters;
@@ -17,7 +17,6 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.util.Callback;
 import org.controlsfx.control.NotificationPane;
-import res.Resource;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,7 +26,7 @@ import java.util.ResourceBundle;
 
 public class Controller implements Initializable {
 
-    private final Image loadingImage = new Image(Resource.class.getResource("loading5.gif").toExternalForm(),
+    private final Image loadingImage = new Image(Controller.class.getResource("loading5.gif").toExternalForm(),
             true);
 
     @FXML
