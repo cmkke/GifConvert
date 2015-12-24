@@ -85,6 +85,7 @@ public class Controller implements Initializable {
         SmartFileChooser fileChooser = new SmartFileChooser();
         fileChooser.addExtensionFilters(new FileChooser.ExtensionFilter("视频文件", MediaConverter
                 .SUPPORT_VIDEO_FORMAT));
+        fileChooser.addExtensionFilters(new FileChooser.ExtensionFilter("所有文件", "*.*"));
         videoNeedConvert = fileChooser.showOpenDialog(gifPreview.getScene().getWindow());
 
         reloadMediaConvert();

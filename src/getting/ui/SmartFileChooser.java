@@ -12,10 +12,6 @@ public class SmartFileChooser {
 
     private final FileChooser fileChooser = new FileChooser();
 
-    {
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("所有文件", "*.*"));
-    }
-
     public File showOpenDialog(final Window ownerWindow) {
         fileChooser.setInitialDirectory(getLastVisitDirectory());
         File file = fileChooser.showOpenDialog(ownerWindow);
