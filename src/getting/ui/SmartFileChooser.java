@@ -2,7 +2,6 @@ package getting.ui;
 
 import com.sun.istack.internal.NotNull;
 import com.sun.istack.internal.Nullable;
-import getting.media.MediaConverter;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
 
@@ -14,8 +13,7 @@ public class SmartFileChooser {
     private final FileChooser fileChooser = new FileChooser();
 
     {
-        fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("视频文件", MediaConverter
-                .SUPPORT_VIDEO_FORMAT), new FileChooser.ExtensionFilter("所有文件", "*.*"));
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("所有文件", "*.*"));
     }
 
     public File showOpenDialog(final Window ownerWindow) {
@@ -27,6 +25,10 @@ public class SmartFileChooser {
         }
 
         return file;
+    }
+
+    public void addExtensionFilters(FileChooser.ExtensionFilter extensionFilter) {
+        fileChooser.getExtensionFilters().add(extensionFilter);
     }
 
     @Nullable

@@ -15,6 +15,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.ComboBox;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.stage.FileChooser;
 import javafx.util.Callback;
 import org.controlsfx.control.NotificationPane;
 
@@ -76,22 +77,25 @@ public class Controller implements Initializable {
 
     @FXML
     private void onChooseScale(ActionEvent event) {
-        reloadConvert();
+        reloadMediaConvert();
     }
 
     @FXML
     private void onChooseVideo(ActionEvent event) {
-        videoNeedConvert = new SmartFileChooser().showOpenDialog(gifPreview.getScene().getWindow());
+        SmartFileChooser fileChooser = new SmartFileChooser();
+        fileChooser.addExtensionFilters(new FileChooser.ExtensionFilter("视频文件", MediaConverter
+                .SUPPORT_VIDEO_FORMAT));
+        videoNeedConvert = fileChooser.showOpenDialog(gifPreview.getScene().getWindow());
 
-        reloadConvert();
+        reloadMediaConvert();
     }
 
     @FXML
     private void onChooseTime(ActionEvent event) {
-        reloadConvert();
+        reloadMediaConvert();
     }
 
-    private void reloadConvert() {
+    private void reloadMediaConvert() {
         if (videoNeedConvert == null) {
             return;
         }
@@ -118,7 +122,7 @@ public class Controller implements Initializable {
 
     @FXML
     private void onChooseFrame(ActionEvent event) {
-        reloadConvert();
+        reloadMediaConvert();
     }
 
     private void showLoadFinish(MediaConvertResult result) {
