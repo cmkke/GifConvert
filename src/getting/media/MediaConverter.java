@@ -72,8 +72,9 @@ public class MediaConverter {
     public static void convert(@NotNull MediaConvertParameters convertInfo, @NotNull Callback<MediaConvertResult, Void>
             notify) {
         final long startTime = System.currentTimeMillis();
-        MEDIA_CONVERTER_EXECUTOR.execute(convertInfo.buildConvertCommand());
-        notify.call(new MediaConvertResult(System.currentTimeMillis() - startTime, convertInfo.buildGifFile()));
+        final boolean convertSuccess = MEDIA_CONVERTER_EXECUTOR.execute(convertInfo.buildConvertCommand());
+        notify.call(new MediaConvertResult(System.currentTimeMillis() - startTime, convertInfo.buildGifFile(),
+                convertSuccess));
     }
 
 }

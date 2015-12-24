@@ -128,7 +128,12 @@ public class Controller implements Initializable {
             e.printStackTrace();
         }
 
-        notificationPane.show("转换时间：" + result.getCostTime() + "，转换后大小：" + result.getFileSize());
+        if (result.isConvertSuccess()) {
+            notificationPane.show("转换时间：" + result.getCostTime() + "，转换后大小：" + result.getFileSize());
+        } else {
+            notificationPane.show("转换失败！！是否选择了有效的视频文件？");
+        }
+
         Looper.removeMessage(MSG_HIDE_NOTIFICATION);
         Looper.postMessage(new Message(new Runnable() {
 
