@@ -12,6 +12,6 @@
 
 # 代码
 
-/src/getting/media/ 目录下是视频转换gif图片的实现
+/src_media/ 目录下是视频转换gif图片的实现
 
-/src/getting/util/ 目录下是仿Android Looper实现的单线程线程池
+/src_looper/ 目录下是仿Android Looper实现的单线程线程池
