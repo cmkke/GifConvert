@@ -1,7 +1,7 @@
 package media;
 
 import com.sun.istack.internal.NotNull;
-import executor.Executor;
+import executor.CommandExecutor;
 import javafx.util.Callback;
 
 import java.util.Arrays;
@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
 public class MediaConverter {
 
     private static final String CONVERTER_NAME = "ffmpeg.exe";
-    private static final Executor MEDIA_CONVERTER_EXECUTOR = new Executor(MediaConverter.class, CONVERTER_NAME);
+    private static final CommandExecutor MEDIA_CONVERTER_COMMAND_EXECUTOR = new CommandExecutor(MediaConverter.class, CONVERTER_NAME);
 
     private MediaConverter() {
     }
@@ -30,7 +30,7 @@ public class MediaConverter {
     public static final List<String> SUPPORT_VIDEO_FORMAT = Arrays.asList("*.mp4", "*.avi", "*.mkv", "*.mov");
 
     public static MediaInfo getMediaInfo(@NotNull MediaConvertParameters convertInfo) {
-        List<String> messages = MEDIA_CONVERTER_EXECUTOR.execute(convertInfo.buildGetMediaInfoCommand()).getMessage();
+        List<String> messages = MEDIA_CONVERTER_COMMAND_EXECUTOR.execute(convertInfo.buildGetMediaInfoCommand()).getMessage();
         for (String message : messages) {
             for (String token : message.split(",")) {
                 Matcher matcher = VIDEO_SIZE_PATTERN.matcher(token);
@@ -51,7 +51,7 @@ public class MediaConverter {
     public static void convert(@NotNull MediaConvertParameters convertInfo, @NotNull Callback<MediaConvertResult, Void>
             notify) {
         final long startTime = System.currentTimeMillis();
-        final boolean convertSuccess = MEDIA_CONVERTER_EXECUTOR.execute(convertInfo.buildConvertCommand()).isSuccess();
+        final boolean convertSuccess = MEDIA_CONVERTER_COMMAND_EXECUTOR.execute(convertInfo.buildConvertCommand()).isSuccess();
         notify.call(new MediaConvertResult(System.currentTimeMillis() - startTime, convertInfo.buildGifFile(),
                 convertSuccess));
     }

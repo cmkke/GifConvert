@@ -2,12 +2,12 @@ package executor;
 
 import java.util.List;
 
-public class ExecuteResult {
+public class CommandExecuteResult {
 
     private final boolean success;
     private final List<String> message;
 
-    public ExecuteResult(boolean success, List<String> message) {
+    public CommandExecuteResult(boolean success, List<String> message) {
         this.success = success;
         this.message = message;
     }

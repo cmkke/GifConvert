@@ -4,13 +4,13 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Executor {
+public class CommandExecutor {
 
     private final Class loaderClass;
     private final String executorName;
     private final File executorFile;
 
-    public Executor(Class loaderClass, String executorName) {
+    public CommandExecutor(Class loaderClass, String executorName) {
         this.loaderClass = loaderClass;
         this.executorName = executorName;
         executorFile = new File(System.getProperty("java.io.tmpdir"), executorName);
@@ -35,7 +35,6 @@ public class Executor {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 
     public void ensureExecutorAvailable() {
@@ -47,7 +46,7 @@ public class Executor {
         copyExecutorToTempDirectory();
     }
 
-    public ExecuteResult execute(String commandParameters) {
+    public CommandExecuteResult execute(String commandParameters) {
         ensureExecutorAvailable();
 
         final String command = executorFile.getAbsolutePath() + " " + commandParameters;
@@ -65,12 +64,12 @@ public class Executor {
                 messages.add(message);
             }
 
-            return new ExecuteResult(converterProcess.waitFor() == 0, messages);
+            return new CommandExecuteResult(converterProcess.waitFor() == 0, messages);
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
 
-        return new ExecuteResult(false, null);
+        return new CommandExecuteResult(false, null);
     }
 
 }
