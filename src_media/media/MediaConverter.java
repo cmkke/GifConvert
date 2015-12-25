@@ -6,6 +6,8 @@ import javafx.util.Callback;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class MediaConverter {
 
@@ -27,49 +29,29 @@ public class MediaConverter {
 
     public static final List<String> SUPPORT_VIDEO_FORMAT = Arrays.asList("*.mp4", "*.avi", "*.mkv", "*.mov");
 
-//    private static MediaInfo getVideoInfo(InputStream stream) {
-//        try {
-//            BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
-//
-//            boolean readingVideoInfo = false;
-//            while (true) {
-//                String message = reader.readLine();
-//                if (message == null) {
-//                    break;
-//                }
-//
-//                if (message.startsWith("Input")) {
-//                    readingVideoInfo = true;
-//                }
-//
-//                if (message.startsWith("Output")) {
-//                    readingVideoInfo = false;
-//                }
-//
-//                if (readingVideoInfo) {
-//                    for (String token : message.split(",")) {
-//                        Matcher matcher = VIDEO_SIZE_PATTERN.matcher(token);
-//                        if (matcher.find()) {
-//                            final int width = Integer.parseInt(matcher.group(1));
-//                            final int height = Integer.parseInt(matcher.group(2));
-//                            return new MediaInfo(width, height);
-//                        }
-//                    }
-//                }
-//            }
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//        return null;
-//    }
-//
-//    private static final Pattern VIDEO_SIZE_PATTERN = Pattern.compile("(\\d{2,4})x(\\d{2,4})", Pattern
-//            .CASE_INSENSITIVE);
+    public static MediaInfo getMediaInfo(@NotNull MediaConvertParameters convertInfo) {
+        List<String> messages = MEDIA_CONVERTER_EXECUTOR.execute(convertInfo.buildGetMediaInfoCommand()).getMessage();
+        for (String message : messages) {
+            for (String token : message.split(",")) {
+                Matcher matcher = VIDEO_SIZE_PATTERN.matcher(token);
+                if (matcher.find()) {
+                    final int width = Integer.parseInt(matcher.group(1));
+                    final int height = Integer.parseInt(matcher.group(2));
+                    return new MediaInfo(width, height);
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private static final Pattern VIDEO_SIZE_PATTERN = Pattern.compile("(\\d{2,4})x(\\d{2,4})", Pattern
+            .CASE_INSENSITIVE);
 
     public static void convert(@NotNull MediaConvertParameters convertInfo, @NotNull Callback<MediaConvertResult, Void>
             notify) {
         final long startTime = System.currentTimeMillis();
-        final boolean convertSuccess = MEDIA_CONVERTER_EXECUTOR.execute(convertInfo.buildConvertCommand());
+        final boolean convertSuccess = MEDIA_CONVERTER_EXECUTOR.execute(convertInfo.buildConvertCommand()).isSuccess();
         notify.call(new MediaConvertResult(System.currentTimeMillis() - startTime, convertInfo.buildGifFile(),
                 convertSuccess));
     }

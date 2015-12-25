@@ -21,7 +21,12 @@ public class MediaConvertParameters {
                 "scale=iw*" + gifScale + ":ih*" + gifScale + " \"" + buildGifFile().getAbsolutePath() + "\"";
     }
 
+    public String buildGetMediaInfoCommand() {
+        return " -i \"" + videoFile.getAbsolutePath() + "\"";
+    }
+
     public File buildGifFile() {
         return new File(videoFile.getParent(), videoFile.getName() + ".gif");
     }
+
 }

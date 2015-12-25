@@ -1,6 +1,8 @@
 package executor;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Executor {
 
@@ -45,19 +47,30 @@ public class Executor {
         copyExecutorToTempDirectory();
     }
 
-    public boolean execute(String commandParameters) {
+    public ExecuteResult execute(String commandParameters) {
         ensureExecutorAvailable();
 
         final String command = executorFile.getAbsolutePath() + " " + commandParameters;
         System.out.println(command);
         try {
             Process converterProcess = Runtime.getRuntime().exec(command);
-            return converterProcess.waitFor() == 0;
+
+            List<String> messages = new ArrayList<>();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(converterProcess.getErrorStream()));
+            while (true) {
+                String message = reader.readLine();
+                if (message == null) {
+                    break;
+                }
+                messages.add(message);
+            }
+
+            return new ExecuteResult(converterProcess.waitFor() == 0, messages);
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
 
-        return false;
+        return new ExecuteResult(false, null);
     }
 
 }

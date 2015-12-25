@@ -1,13 +1,6 @@
 package control;
 
 import com.sun.istack.internal.NotNull;
-import media.MediaConvertParameters;
-import media.MediaConvertResult;
-import media.MediaConverter;
-import ui.HelpWizard;
-import ui.SmartFileChooser;
-import util.Looper;
-import util.Message;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -17,7 +10,14 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.FileChooser;
 import javafx.util.Callback;
+import media.MediaConvertParameters;
+import media.MediaConvertResult;
+import media.MediaConverter;
 import org.controlsfx.control.NotificationPane;
+import ui.HelpWizard;
+import ui.SmartFileChooser;
+import util.Looper;
+import util.Message;
 
 import java.io.File;
 import java.io.IOException;
