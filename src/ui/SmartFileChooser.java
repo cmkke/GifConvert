@@ -1,4 +1,4 @@
-package getting.ui;
+package ui;
 
 import com.sun.istack.internal.NotNull;
 import com.sun.istack.internal.Nullable;

@@ -1,4 +1,4 @@
-package getting.media;
+package media;
 
 import java.io.File;
 

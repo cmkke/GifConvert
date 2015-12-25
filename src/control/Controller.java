@@ -1,13 +1,13 @@
-package getting.control;
+package control;
 
 import com.sun.istack.internal.NotNull;
-import getting.media.MediaConvertParameters;
-import getting.media.MediaConvertResult;
-import getting.media.MediaConverter;
-import getting.ui.HelpWizard;
-import getting.ui.SmartFileChooser;
-import getting.util.Looper;
-import getting.util.Message;
+import media.MediaConvertParameters;
+import media.MediaConvertResult;
+import media.MediaConverter;
+import ui.HelpWizard;
+import ui.SmartFileChooser;
+import util.Looper;
+import util.Message;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;

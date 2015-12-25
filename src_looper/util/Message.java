@@ -1,4 +1,4 @@
-package getting.util;
+package util;
 
 import com.sun.istack.internal.NotNull;
 

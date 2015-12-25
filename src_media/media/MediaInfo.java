@@ -1,4 +1,4 @@
-package getting.media;
+package media;
 
 public class MediaInfo {
 

@@ -1,4 +1,4 @@
-package getting.ui;
+package ui;
 
 import javafx.fxml.FXMLLoader;
 import javafx.stage.Window;

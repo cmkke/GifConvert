@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="media">
+    <output-path>$PROJECT_DIR$/out/artifacts/media</output-path>
+    <root id="archive" name="media.jar">
+      <element id="dir-copy" path="$PROJECT_DIR$/src_media" />
+    </root>
+  </artifact>
+</component>

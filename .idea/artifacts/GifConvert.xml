@@ -3,7 +3,7 @@
     <output-path>$PROJECT_DIR$/out/artifacts/GifConvert</output-path>
     <properties id="javafx-properties">
       <options>
-        <option name="appClass" value="getting.Main" />
+        <option name="appClass" value="Main" />
         <option name="description" value="" />
         <option name="htmlParamFile" value="" />
         <option name="paramFile" value="" />
@@ -17,8 +17,8 @@
         <element id="directory" name="META-INF">
           <element id="file-copy" path="$PROJECT_DIR$/META-INF/MANIFEST.MF" />
         </element>
+        <element id="extracted-dir" path="$PROJECT_DIR$/libs/controlsfx-8.40.10.jar" path-in-jar="/" />
       </element>
-      <element id="library" level="project" name="libs" />
     </root>
   </artifact>
 </component>

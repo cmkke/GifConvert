@@ -1,14 +1,11 @@
-package getting.media;
+package media;
 
 import com.sun.istack.internal.NotNull;
-import getting.executor.Executor;
+import executor.Executor;
 import javafx.util.Callback;
 
-import java.io.*;
 import java.util.Arrays;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class MediaConverter {
 
