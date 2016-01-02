@@ -1,6 +1,7 @@
 package media;
 
 import com.sun.istack.internal.NotNull;
+import executor.CommandExecuteResult;
 import executor.CommandExecutor;
 
 import java.util.Arrays;
@@ -28,29 +29,58 @@ public class MediaConverter {
     public static final List<String> SUPPORT_VIDEO_FORMAT = Arrays.asList("*.mp4", "*.avi", "*.mkv", "*.mov");
 
     public static MediaInfo getMediaInfo(@NotNull MediaConvertParameters convertInfo) {
-        List<String> messages = MEDIA_CONVERTER_COMMAND_EXECUTOR.execute(convertInfo.buildGetMediaInfoCommand()).getMessage();
+        return parseMediaInfo(MEDIA_CONVERTER_COMMAND_EXECUTOR.execute(convertInfo.buildGetMediaInfoCommand()).getMessage());
+    }
+
+    private static MediaInfo parseMediaInfo(List<String> messages) {
+        int width = -1;
+        int height = -1;
+        int frameRate = -1;
+        String duration = null;
+
         for (String message : messages) {
+            if (message.startsWith("Output ")) {
+                break;
+            }
+
             for (String token : message.split(",")) {
-                Matcher matcher = VIDEO_SIZE_PATTERN.matcher(token);
-                if (matcher.find()) {
-                    final int width = Integer.parseInt(matcher.group(1));
-                    final int height = Integer.parseInt(matcher.group(2));
-                    return new MediaInfo(width, height);
+                Matcher videoSizeMatcher = VIDEO_SIZE_PATTERN.matcher(token);
+                if (videoSizeMatcher.find()) {
+                    width = Integer.parseInt(videoSizeMatcher.group(1));
+                    height = Integer.parseInt(videoSizeMatcher.group(2));
+                }
+
+                Matcher frameRateMatcher = VIDEO_FRAME_RATE_PATTERN.matcher(token);
+                if (frameRateMatcher.find()) {
+                    frameRate = Integer.parseInt(frameRateMatcher.group(1));
+                }
+
+                Matcher videoDurationMatcher = VIDEO_DURATION_PATTERN.matcher(token);
+                if (videoDurationMatcher.find()) {
+                    duration = videoDurationMatcher.group(1);
                 }
             }
         }
 
-        return null;
+        if (width == -1 || height == -1 || frameRate == -1 || duration == null) {
+            return null;
+        }
+
+        return new MediaInfo(width, height, frameRate, duration);
     }
 
-    private static final Pattern VIDEO_SIZE_PATTERN = Pattern.compile("(\\d{2,4})x(\\d{2,4})", Pattern
-            .CASE_INSENSITIVE);
+    private static final Pattern VIDEO_SIZE_PATTERN = Pattern.compile("(\\d{2,4})x(\\d{2,4})", Pattern.CASE_INSENSITIVE);
+    private static final Pattern VIDEO_FRAME_RATE_PATTERN = Pattern.compile("(\\d+) fps", Pattern.CASE_INSENSITIVE);
+    private static final Pattern VIDEO_DURATION_PATTERN = Pattern.compile("Duration: (\\S+)", Pattern.CASE_INSENSITIVE);
 
     public static MediaConvertResult convert(@NotNull MediaConvertParameters convertInfo) {
         final long startTime = System.currentTimeMillis();
-        convertInfo.buildGifFile().delete();
-        final boolean convertSuccess = MEDIA_CONVERTER_COMMAND_EXECUTOR.execute(convertInfo.buildConvertCommand()).isSuccess();
-        return new MediaConvertResult(System.currentTimeMillis() - startTime, convertInfo.buildGifFile(), convertSuccess);
+        convertInfo.getOutputGifInfo().delete();
+        CommandExecuteResult convertResult = MEDIA_CONVERTER_COMMAND_EXECUTOR.execute(convertInfo.buildConvertCommand());
+        return new MediaConvertResult(parseMediaInfo(convertResult.getMessage()),
+                System.currentTimeMillis() - startTime,
+                convertInfo.getOutputGifInfo(),
+                convertResult.isSuccess());
     }
 
 }

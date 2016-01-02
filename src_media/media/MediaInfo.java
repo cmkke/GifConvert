@@ -4,18 +4,19 @@ public class MediaInfo {
 
     private final int videoWidth;
     private final int videoHeight;
+    private final int frameRate;
+    private final String duration;
 
-    public MediaInfo(int videoWidth, int videoHeight) {
+    public MediaInfo(int videoWidth, int videoHeight, int frameRate, String duration) {
         this.videoWidth = videoWidth;
         this.videoHeight = videoHeight;
+        this.frameRate = frameRate;
+        this.duration = duration;
     }
 
-    public int getVideoWidth() {
-        return videoWidth;
-    }
-
-    public int getVideoHeight() {
-        return videoHeight;
+    @Override
+    public String toString() {
+        return "" + videoHeight + "x" + videoWidth + ", " + frameRate + "fps, " + duration;
     }
 
 }

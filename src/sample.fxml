@@ -47,19 +47,19 @@
                                     </rowConstraints>
                                     <children>
                                         <Label text="帧率："/>
-                                        <ComboBox fx:id="gifFrameRate" onAction="#onChooseFrame" prefWidth="150.0"
+                                        <ComboBox fx:id="gifFrameRateView" onAction="#onChooseFrame" prefWidth="150.0"
                                                   GridPane.columnIndex="1"/>
 
                                         <Label text="缩放：" GridPane.rowIndex="1"/>
-                                        <ComboBox fx:id="gifScale" onAction="#onChooseScale" prefWidth="150.0"
+                                        <ComboBox fx:id="gifScaleView" onAction="#onChooseScale" prefWidth="150.0"
                                                   GridPane.columnIndex="1" GridPane.rowIndex="1"/>
 
                                         <Label text="时长(s)：" GridPane.rowIndex="2"/>
-                                        <ComboBox fx:id="gifTime" onAction="#onChooseTime" prefWidth="150.0"
+                                        <ComboBox fx:id="gifDurationView" onAction="#onChooseTime" prefWidth="150.0"
                                                   GridPane.columnIndex="1" GridPane.rowIndex="2"/>
 
                                         <Label text="开始时间：" GridPane.rowIndex="3"/>
-                                        <TextField fx:id="gifStartTime" prefWidth="150.0" promptText="00:00:00.000"
+                                        <TextField fx:id="gifStartTimeView" prefWidth="150.0" promptText="00:00:00.00"
                                                    GridPane.columnIndex="1" GridPane.rowIndex="3"/>
                                     </children>
                                 </GridPane>
@@ -75,7 +75,7 @@
             <center>
                 <BorderPane BorderPane.alignment="CENTER">
                     <center>
-                        <ImageView fx:id="gifPreview" fitHeight="500.0" fitWidth="500.0" pickOnBounds="true"
+                        <ImageView fx:id="gifPreviewView" fitHeight="500.0" fitWidth="500.0" pickOnBounds="true"
                                    preserveRatio="true" BorderPane.alignment="CENTER">
                             <image>
                                 <Image backgroundLoading="true" url="@control/loading6.gif"/>
@@ -84,6 +84,14 @@
                     </center>
                 </BorderPane>
             </center>
+
+            <bottom>
+                <ToolBar BorderPane.alignment="CENTER">
+                    <items>
+                        <Label fx:id="mediaInfoView"/>
+                    </items>
+                </ToolBar>
+            </bottom>
 
         </BorderPane>
 

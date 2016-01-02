@@ -8,6 +8,7 @@ public class MediaConvertResult {
     private final boolean convertSuccess;
     private final File outFile;
     private final long costTime;
+    private final MediaInfo mediaInfo;
 
     public File getOutFile() {
         return outFile;
@@ -17,7 +18,8 @@ public class MediaConvertResult {
         return NumberFormat.getNumberInstance().format(costTime / 1000.0) + " 秒";
     }
 
-    public MediaConvertResult(long costTime, File outFile, boolean convertSuccess) {
+    public MediaConvertResult(MediaInfo mediaInfo, long costTime, File outFile, boolean convertSuccess) {
+        this.mediaInfo = mediaInfo;
         this.costTime = costTime;
         this.outFile = outFile;
         this.convertSuccess = convertSuccess;
@@ -29,6 +31,10 @@ public class MediaConvertResult {
 
     public boolean isConvertSuccess() {
         return convertSuccess;
+    }
+
+    public MediaInfo getMediaInfo() {
+        return mediaInfo;
     }
 
 }

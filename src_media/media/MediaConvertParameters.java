@@ -30,14 +30,14 @@ public class MediaConvertParameters {
                 + " -ss " + gifStartTime
                 + " -r " + gifFrameRate
                 + " -vf scale=iw*" + gifScale + ":ih*" + gifScale
-                + " \"" + buildGifFile().getAbsolutePath() + "\"";
+                + " \"" + getOutputGifInfo().getAbsolutePath() + "\"";
     }
 
     public String buildGetMediaInfoCommand() {
         return " -i \"" + videoFile.getAbsolutePath() + "\"";
     }
 
-    public File buildGifFile() {
+    public File getOutputGifInfo() {
         return new File(videoFile.getParent(), videoFile.getName() + ".gif");
     }
 

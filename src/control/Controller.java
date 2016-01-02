@@ -7,6 +7,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -28,37 +29,35 @@ import java.util.ResourceBundle;
 
 public class Controller implements Initializable {
 
-    private final Image loadingImage = new Image(Controller.class.getResource("loading6.gif").toExternalForm(),
-            true);
-
     @FXML
-    private ImageView gifPreview;
+    private ImageView gifPreviewView;
     @FXML
-    private ComboBox<Integer> gifFrameRate;
+    private ComboBox<Integer> gifFrameRateView;
     @FXML
-    private ComboBox<Double> gifScale;
+    private ComboBox<Double> gifScaleView;
     @FXML
-    private ComboBox<Integer> gifTime;
+    private ComboBox<Integer> gifDurationView;
     @FXML
-    private TextField gifStartTime;
-
-    private File videoNeedConvert;
-
+    private TextField gifStartTimeView;
+    @FXML
+    private Label mediaInfoView;
     @FXML
     private NotificationPane notificationPane;
 
+    private File mediaHasChoosed;
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        gifFrameRate.getItems().addAll(MediaConverter.SUPPORT_GIF_FRAME_RATE);
-        gifFrameRate.setValue(MediaConverter.DEFAULT_GIF_FRAME_RATE);
+        gifFrameRateView.getItems().addAll(MediaConverter.SUPPORT_GIF_FRAME_RATE);
+        gifFrameRateView.setValue(MediaConverter.DEFAULT_GIF_FRAME_RATE);
 
-        gifScale.getItems().addAll(MediaConverter.SUPPORT_GIF_SCALE);
-        gifScale.setValue(MediaConverter.DEFAULT_GIF_SCALE);
+        gifScaleView.getItems().addAll(MediaConverter.SUPPORT_GIF_SCALE);
+        gifScaleView.setValue(MediaConverter.DEFAULT_GIF_SCALE);
 
-        gifTime.getItems().addAll(MediaConverter.SUPPORT_GIF_TIME);
-        gifTime.setValue(MediaConverter.DEFAULT_GIF_TIME);
+        gifDurationView.getItems().addAll(MediaConverter.SUPPORT_GIF_TIME);
+        gifDurationView.setValue(MediaConverter.DEFAULT_GIF_TIME);
 
-        gifStartTime.textProperty().addListener(new ChangeListener<String>() {
+        gifStartTimeView.textProperty().addListener(new ChangeListener<String>() {
 
             @Override
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
@@ -76,10 +75,9 @@ public class Controller implements Initializable {
     @FXML
     private void onChooseVideo(ActionEvent event) {
         SmartFileChooser fileChooser = new SmartFileChooser();
-        fileChooser.addExtensionFilters(new FileChooser.ExtensionFilter("视频文件", MediaConverter
-                .SUPPORT_VIDEO_FORMAT));
+        fileChooser.addExtensionFilters(new FileChooser.ExtensionFilter("视频文件", MediaConverter.SUPPORT_VIDEO_FORMAT));
         fileChooser.addExtensionFilters(new FileChooser.ExtensionFilter("所有文件", "*.*"));
-        videoNeedConvert = fileChooser.showOpenDialog(gifPreview.getScene().getWindow());
+        mediaHasChoosed = fileChooser.showOpenDialog(gifPreviewView.getScene().getWindow());
 
         reloadMediaConvert();
     }
@@ -90,26 +88,26 @@ public class Controller implements Initializable {
     }
 
     private void reloadMediaConvert(long delay) {
-        if (videoNeedConvert == null) {
+        if (mediaHasChoosed == null) {
             return;
         }
 
-        Looper.removeMessage(MSG_CONVERT);
+        Looper.removeMessage(MSG_CONVERT_MEDIA);
         Looper.postMessage(new Message(new Runnable() {
 
             @Override
             public void run() {
                 showLoadingImage();
                 MediaConvertResult result = MediaConverter.convert(
-                        new MediaConvertParameters(videoNeedConvert,
-                                gifFrameRate.getValue(),
-                                gifScale.getValue(),
-                                gifStartTime.getText(),
-                                gifTime.getValue()));
+                        new MediaConvertParameters(mediaHasChoosed,
+                                gifFrameRateView.getValue(),
+                                gifScaleView.getValue(),
+                                gifStartTimeView.getText(),
+                                gifDurationView.getValue()));
                 showLoadingFinish(result);
             }
 
-        }, MSG_CONVERT, delay));
+        }, MSG_CONVERT_MEDIA, delay));
     }
 
     private void reloadMediaConvert() {
@@ -121,7 +119,7 @@ public class Controller implements Initializable {
 
             @Override
             public void run() {
-                gifPreview.setImage(loadingImage);
+                gifPreviewView.setImage(new Image(Controller.class.getResource("loading6.gif").toExternalForm(), true));
             }
 
         });
@@ -133,10 +131,12 @@ public class Controller implements Initializable {
             @Override
             public void run() {
                 try {
-                    gifPreview.setImage(new Image(result.getOutFile().toURI().toURL().toExternalForm(), true));
+                    gifPreviewView.setImage(new Image(result.getOutFile().toURI().toURL().toExternalForm(), true));
                 } catch (MalformedURLException e) {
                     e.printStackTrace();
                 }
+
+                mediaInfoView.setText(result.getMediaInfo().toString());
 
                 if (result.isConvertSuccess()) {
                     notificationPane.show("转换时间：" + result.getCostTime() + "，转换后大小：" + result.getFileSize());
@@ -160,7 +160,7 @@ public class Controller implements Initializable {
 
     @FXML
     private void onAbout(ActionEvent event) throws IOException {
-        new HelpWizard(gifFrameRate.getScene().getWindow()).show();
+        new HelpWizard(gifFrameRateView.getScene().getWindow()).show();
     }
 
     @FXML
@@ -168,7 +168,7 @@ public class Controller implements Initializable {
         reloadMediaConvert();
     }
 
-    private static final Object MSG_CONVERT = new Object();
+    private static final Object MSG_CONVERT_MEDIA = new Object();
     private static final Object MSG_HIDE_NOTIFICATION = new Object();
 
 }
