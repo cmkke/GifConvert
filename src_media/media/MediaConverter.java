@@ -17,13 +17,13 @@ public class MediaConverter {
     }
 
     public static final List<Integer> SUPPORT_GIF_TIME = Arrays.asList(5, 10, 15, 20);
-    public static final Integer DEFAULT_GIF_TIME = 10;
+    public static final Integer DEFAULT_GIF_TIME = SUPPORT_GIF_TIME.get(1);
 
     public static final List<Double> SUPPORT_GIF_SCALE = Arrays.asList(0.25, 0.5, 0.75, 1.0);
-    public static final Double DEFAULT_GIF_SCALE = 1.0;
+    public static final Double DEFAULT_GIF_SCALE = SUPPORT_GIF_SCALE.get(3);
 
     public static final List<Integer> SUPPORT_GIF_FRAME_RATE = Arrays.asList(1, 4, 7, 11, 15);
-    public static final Integer DEFAULT_GIF_FRAME_RATE = 8;
+    public static final Integer DEFAULT_GIF_FRAME_RATE = SUPPORT_GIF_FRAME_RATE.get(2);
 
     public static final List<String> SUPPORT_VIDEO_FORMAT = Arrays.asList("*.mp4", "*.avi", "*.mkv", "*.mov");
 
