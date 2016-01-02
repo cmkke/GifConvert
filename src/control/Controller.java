@@ -8,7 +8,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
-import javafx.scene.control.TextFormatter;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.FileChooser;
@@ -26,7 +25,6 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ResourceBundle;
-import java.util.function.UnaryOperator;
 
 public class Controller implements Initializable {
 
@@ -91,7 +89,7 @@ public class Controller implements Initializable {
         reloadMediaConvert();
     }
 
-    private void reloadMediaConvert(int delay) {
+    private void reloadMediaConvert(long delay) {
         if (videoNeedConvert == null) {
             return;
         }
