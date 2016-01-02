@@ -2,7 +2,6 @@ package media;
 
 import com.sun.istack.internal.NotNull;
 import executor.CommandExecutor;
-import javafx.util.Callback;
 
 import java.util.Arrays;
 import java.util.List;
@@ -48,12 +47,10 @@ public class MediaConverter {
     private static final Pattern VIDEO_SIZE_PATTERN = Pattern.compile("(\\d{2,4})x(\\d{2,4})", Pattern
             .CASE_INSENSITIVE);
 
-    public static void convert(@NotNull MediaConvertParameters convertInfo, @NotNull Callback<MediaConvertResult, Void>
-            notify) {
+    public static MediaConvertResult convert(@NotNull MediaConvertParameters convertInfo) {
         final long startTime = System.currentTimeMillis();
         final boolean convertSuccess = MEDIA_CONVERTER_COMMAND_EXECUTOR.execute(convertInfo.buildConvertCommand()).isSuccess();
-        notify.call(new MediaConvertResult(System.currentTimeMillis() - startTime, convertInfo.buildGifFile(),
-                convertSuccess));
+        return new MediaConvertResult(System.currentTimeMillis() - startTime, convertInfo.buildGifFile(), convertSuccess);
     }
 
 }

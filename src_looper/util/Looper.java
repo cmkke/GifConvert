@@ -80,6 +80,14 @@ public class Looper {
         }
     }
 
+    public static void removeAllMessage() {
+        final Looper looper = myLoop();
+        synchronized (looper.lock) {
+            looper.messages.clear();
+            looper.lock.notifyAll();
+        }
+    }
+
     private static Looper myLoop() {
         if (LOOPER_THREAD_LOCAL.get() == null) {
             throw new IllegalStateException("call Looper.prepare() first");

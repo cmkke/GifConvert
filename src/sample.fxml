@@ -57,6 +57,10 @@
                                         <Label text="时长(s)：" GridPane.rowIndex="2"/>
                                         <ComboBox fx:id="gifTime" onAction="#onChooseTime" prefWidth="150.0"
                                                   GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+
+                                        <Label text="开始时间：" GridPane.rowIndex="3"/>
+                                        <TextField fx:id="gifStartTime" prefWidth="150.0" promptText="00:00:00.000"
+                                                   GridPane.columnIndex="1" GridPane.rowIndex="3"/>
                                     </children>
                                 </GridPane>
                             </children>
@@ -74,7 +78,7 @@
                         <ImageView fx:id="gifPreview" fitHeight="500.0" fitWidth="500.0" pickOnBounds="true"
                                    preserveRatio="true" BorderPane.alignment="CENTER">
                             <image>
-                                <Image backgroundLoading="true" url="@control/loading5.gif"/>
+                                <Image backgroundLoading="true" url="@control/loading6.gif"/>
                             </image>
                         </ImageView>
                     </center>
