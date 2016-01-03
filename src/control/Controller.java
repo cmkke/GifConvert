@@ -69,7 +69,7 @@ public class Controller implements Initializable {
 
     @FXML
     private void onChooseScale(ActionEvent event) {
-        reloadMediaConvert();
+        reloadMediaConvert(3000);
     }
 
     @FXML
@@ -79,12 +79,12 @@ public class Controller implements Initializable {
         fileChooser.addExtensionFilters(new FileChooser.ExtensionFilter("所有文件", "*.*"));
         mediaHasChoosed = fileChooser.showOpenDialog(gifPreviewView.getScene().getWindow());
 
-        reloadMediaConvert();
+        reloadMediaConvert(3000);
     }
 
     @FXML
     private void onChooseTime(ActionEvent event) {
-        reloadMediaConvert();
+        reloadMediaConvert(3000);
     }
 
     private void reloadMediaConvert(long delay) {
@@ -110,10 +110,6 @@ public class Controller implements Initializable {
         }, MSG_CONVERT_MEDIA, delay));
     }
 
-    private void reloadMediaConvert() {
-        reloadMediaConvert(0);
-    }
-
     private void showLoadingImage() {
         Platform.runLater(new Runnable() {
 
@@ -125,13 +121,24 @@ public class Controller implements Initializable {
         });
     }
 
+    private void hideNotificationPanel() {
+        Platform.runLater(new Runnable() {
+
+            @Override
+            public void run() {
+                notificationPane.hide();
+            }
+
+        });
+    }
+
     private void showLoadingFinish(MediaConvertResult result) {
         Platform.runLater(new Runnable() {
 
             @Override
             public void run() {
                 try {
-                    gifPreviewView.setImage(new Image(result.getOutFile().toURI().toURL().toExternalForm(), true));
+                    gifPreviewView.setImage(new Image(result.getOutputFile().toURI().toURL().toExternalForm(), true));
                 } catch (MalformedURLException e) {
                     e.printStackTrace();
                 }
@@ -149,10 +156,10 @@ public class Controller implements Initializable {
 
                     @Override
                     public void run() {
-                        notificationPane.hide();
+                        hideNotificationPanel();
                     }
 
-                }, MSG_HIDE_NOTIFICATION, 4000));
+                }, MSG_HIDE_NOTIFICATION, 3000));
             }
 
         });
@@ -165,7 +172,7 @@ public class Controller implements Initializable {
 
     @FXML
     private void onChooseFrame(ActionEvent event) {
-        reloadMediaConvert();
+        reloadMediaConvert(3000);
     }
 
     private static final Object MSG_CONVERT_MEDIA = new Object();

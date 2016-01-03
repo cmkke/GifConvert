@@ -6,12 +6,12 @@ import java.text.NumberFormat;
 public class MediaConvertResult {
 
     private final boolean convertSuccess;
-    private final File outFile;
+    private final File outputFile;
     private final long costTime;
     private final MediaInfo mediaInfo;
 
-    public File getOutFile() {
-        return outFile;
+    public File getOutputFile() {
+        return outputFile;
     }
 
     public String getCostTime() {
@@ -21,12 +21,12 @@ public class MediaConvertResult {
     public MediaConvertResult(MediaInfo mediaInfo, long costTime, File outFile, boolean convertSuccess) {
         this.mediaInfo = mediaInfo;
         this.costTime = costTime;
-        this.outFile = outFile;
+        this.outputFile = outFile;
         this.convertSuccess = convertSuccess;
     }
 
     public String getFileSize() {
-        return NumberFormat.getNumberInstance().format(outFile.length() / 1024) + " KB";
+        return NumberFormat.getNumberInstance().format(outputFile.length() / 1024) + " KB";
     }
 
     public boolean isConvertSuccess() {
