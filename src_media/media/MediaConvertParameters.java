@@ -24,10 +24,16 @@ public class MediaConvertParameters {
         this.gifTime = gifTime;
     }
 
+    /**
+     * ffmpeg [global_options] {[input_file_options] -i input_file} ... {[output_file_options] output_file} ...
+     *
+     * @return
+     */
     public String buildConvertCommand() {
-        return " -y -i \"" + videoFile.getAbsolutePath() + "\""
+        return " -y "
+                + "-ss " + gifStartTime
+                + " -i \"" + videoFile.getAbsolutePath() + "\""
                 + " -t " + gifTime
-                + " -ss " + gifStartTime
                 + " -r " + gifFrameRate
                 + " -vf scale=iw*" + gifScale + ":ih*" + gifScale
                 + " \"" + getOutputGifInfo().getAbsolutePath() + "\"";
