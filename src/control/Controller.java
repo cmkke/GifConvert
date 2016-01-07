@@ -9,9 +9,11 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextFormatter;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.FileChooser;
+import javafx.util.StringConverter;
 import media.MediaConvertParameters;
 import media.MediaConvertResult;
 import media.MediaConverter;
@@ -69,7 +71,7 @@ public class Controller implements Initializable {
 
     @FXML
     private void onChooseScale(ActionEvent event) {
-        reloadMediaConvert(3000);
+        reloadMediaConvert(0);
     }
 
     @FXML
@@ -79,12 +81,12 @@ public class Controller implements Initializable {
         fileChooser.addExtensionFilters(new FileChooser.ExtensionFilter("所有文件", "*.*"));
         mediaHasChoosed = fileChooser.showOpenDialog(gifPreviewView.getScene().getWindow());
 
-        reloadMediaConvert(3000);
+        reloadMediaConvert(0);
     }
 
     @FXML
     private void onChooseTime(ActionEvent event) {
-        reloadMediaConvert(3000);
+        reloadMediaConvert(0);
     }
 
     private void reloadMediaConvert(long delay) {
