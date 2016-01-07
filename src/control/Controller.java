@@ -92,6 +92,7 @@ public class Controller implements Initializable {
             return;
         }
 
+        hideNotificationPanel();
         Looper.removeMessage(MSG_CONVERT_MEDIA);
         Looper.postMessage(new Message(new Runnable() {
 
@@ -126,7 +127,9 @@ public class Controller implements Initializable {
 
             @Override
             public void run() {
-                notificationPane.hide();
+                if (notificationPane.isShowing()) {
+                    notificationPane.hide();
+                }
             }
 
         });
