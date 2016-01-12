@@ -6,7 +6,10 @@ import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.*;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Control;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.FileChooser;
@@ -31,6 +34,8 @@ import java.util.ResourceBundle;
 
 public class Controller implements Initializable {
 
+    private static final Object MSG_CONVERT_MEDIA = new Object();
+    private static final Object MSG_HIDE_NOTIFICATION = new Object();
     @FXML
     private ImageView gifPreviewView;
     @FXML
@@ -45,7 +50,6 @@ public class Controller implements Initializable {
     private Label mediaInfoView;
     @FXML
     private NotificationPane notificationPane;
-
     private File mediaHasChoosed;
 
     @Override
@@ -113,19 +117,21 @@ public class Controller implements Initializable {
             return;
         }
 
+        if (!mediaHasChoosed.exists() || !mediaHasChoosed.isFile()) {
+            notificationPane.show("所选择的文件已被删除，请重新选择文件");
+        }
+
         Looper.removeMessage(MSG_CONVERT_MEDIA);
         Looper.postMessage(new Message(new Runnable() {
 
             @Override
             public void run() {
                 showLoadingImage();
-                MediaConvertResult result = MediaConverter.convert(
-                        new MediaConvertParameters(mediaHasChoosed,
-                                gifFrameRateView.getValue(),
-                                gifScaleView.getValue(),
-                                gifStartTimeView.getText(),
-                                gifDurationView.getValue()));
-                showLoadingFinish(result);
+                showLoadingFinish(MediaConverter.convert(new MediaConvertParameters(mediaHasChoosed,
+                        gifFrameRateView.getValue(),
+                        gifScaleView.getValue(),
+                        gifStartTimeView.getText(),
+                        gifDurationView.getValue())));
             }
 
         }, MSG_CONVERT_MEDIA, delay));
@@ -137,19 +143,6 @@ public class Controller implements Initializable {
             @Override
             public void run() {
                 gifPreviewView.setImage(new Image(Controller.class.getResource("loading6.gif").toExternalForm(), true));
-            }
-
-        });
-    }
-
-    private void hideNotificationPanel() {
-        Platform.runLater(new Runnable() {
-
-            @Override
-            public void run() {
-                if (notificationPane.isShowing()) {
-                    notificationPane.hide();
-                }
             }
 
         });
@@ -186,10 +179,12 @@ public class Controller implements Initializable {
 
             @Override
             public void run() {
-                hideNotificationPanel();
+                if (notificationPane.isShowing()) {
+                    notificationPane.hide();
+                }
             }
 
-        }, MSG_HIDE_NOTIFICATION, 3000));
+        }, MSG_HIDE_NOTIFICATION, 3000, true));
     }
 
     @FXML
@@ -199,10 +194,7 @@ public class Controller implements Initializable {
 
     @FXML
     private void onChooseFrame(ActionEvent event) {
-        reloadMediaConvert(3000);
+        reloadMediaConvert(0);
     }
-
-    private static final Object MSG_CONVERT_MEDIA = new Object();
-    private static final Object MSG_HIDE_NOTIFICATION = new Object();
 
 }

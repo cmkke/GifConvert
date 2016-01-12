@@ -7,6 +7,13 @@ import java.util.List;
 
 public class Looper {
 
+    private final static ThreadLocal<Looper> LOOPER_THREAD_LOCAL = new ThreadLocal<>();
+    private final Object lock = new Object();
+    private final List<Message> messages = new ArrayList<>();
+
+    private Looper() {
+    }
+
     public static void prepare() {
         if (LOOPER_THREAD_LOCAL.get() != null) {
             throw new IllegalStateException("can not call Looper.prepare() twice");
@@ -16,21 +23,17 @@ public class Looper {
         loop();
     }
 
-    private final static ThreadLocal<Looper> LOOPER_THREAD_LOCAL = new ThreadLocal<>();
-
-    private Looper() {
-    }
-
     private static void loop() {
         final Looper looper = myLoop();
         Thread thread = new Thread() {
 
             @Override
             public void run() {
-                while (true) {
-                    Message message;
-                    synchronized (looper.lock) {
-                        try {
+                try {
+                    while (true) {
+                        Message message;
+                        synchronized (looper.lock) {
+
                             if (looper.messages.isEmpty()) {
                                 looper.lock.wait();
                                 continue;
@@ -41,14 +44,15 @@ public class Looper {
                                 looper.lock.wait(waitTime);
                                 continue;
                             }
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
+
+
+                            message = looper.messages.remove(0);
                         }
 
-                        message = looper.messages.remove(0);
+                        message.run();
                     }
-
-                    message.getRunnable().run();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
             }
 
@@ -95,8 +99,5 @@ public class Looper {
 
         return LOOPER_THREAD_LOCAL.get();
     }
-
-    private final Object lock = new Object();
-    private final List<Message> messages = new ArrayList<>();
 
 }
