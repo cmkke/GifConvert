@@ -6,18 +6,18 @@ import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
-import javafx.scene.control.TextFormatter;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.FileChooser;
-import javafx.util.StringConverter;
 import media.MediaConvertParameters;
 import media.MediaConvertResult;
 import media.MediaConverter;
 import org.controlsfx.control.NotificationPane;
+import org.controlsfx.validation.ValidationResult;
+import org.controlsfx.validation.ValidationSupport;
+import org.controlsfx.validation.Validator;
+import org.controlsfx.validation.decoration.GraphicValidationDecoration;
 import ui.HelpWizard;
 import ui.SmartFileChooser;
 import util.Looper;
@@ -67,6 +67,16 @@ public class Controller implements Initializable {
             }
 
         });
+        ValidationSupport startTimeValidationSupport = new ValidationSupport();
+        startTimeValidationSupport.setValidationDecorator(new GraphicValidationDecoration());
+        startTimeValidationSupport.registerValidator(gifStartTimeView, new Validator<String>() {
+
+            @Override
+            public ValidationResult apply(Control control, String s) {
+                return ValidationResult.fromErrorIf(control, "时间格式不正确", !MediaConvertParameters.validateMediaStartTime(s));
+            }
+
+        });
     }
 
     @FXML
@@ -90,11 +100,19 @@ public class Controller implements Initializable {
     }
 
     private void reloadMediaConvert(long delay) {
+        if (notificationPane.isShowing()) {
+            notificationPane.hide();
+        }
+
+        if (!MediaConvertParameters.validateMediaStartTime(gifStartTimeView.getText())) {
+            notificationPane.show("转换开始时间格式错误，例：00:01:05");
+            return;
+        }
+
         if (mediaHasChoosed == null) {
             return;
         }
 
-        hideNotificationPanel();
         Looper.removeMessage(MSG_CONVERT_MEDIA);
         Looper.postMessage(new Message(new Runnable() {
 
@@ -151,23 +169,27 @@ public class Controller implements Initializable {
                 mediaInfoView.setText(result.getMediaInfo().toString());
 
                 if (result.isConvertSuccess()) {
-                    notificationPane.show("转换时间：" + result.getCostTime() + "，转换后大小：" + result.getFileSize());
+                    showNotificationForAWhile("转换时间：" + result.getCostTime() + "，转换后大小：" + result.getFileSize(), 3000);
                 } else {
-                    notificationPane.show("转换失败！！是否选择了有效的视频文件？");
+                    showNotificationForAWhile("转换失败！！是否选择了有效的视频文件？", 3000);
                 }
-
-                Looper.removeMessage(MSG_HIDE_NOTIFICATION);
-                Looper.postMessage(new Message(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        hideNotificationPanel();
-                    }
-
-                }, MSG_HIDE_NOTIFICATION, 3000));
             }
 
         });
+    }
+
+    private void showNotificationForAWhile(String message, long duration) {
+        notificationPane.show(message);
+
+        Looper.removeMessage(MSG_HIDE_NOTIFICATION);
+        Looper.postMessage(new Message(new Runnable() {
+
+            @Override
+            public void run() {
+                hideNotificationPanel();
+            }
+
+        }, MSG_HIDE_NOTIFICATION, 3000));
     }
 
     @FXML

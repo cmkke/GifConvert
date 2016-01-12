@@ -1,6 +1,7 @@
 package media;
 
 import java.io.File;
+import java.util.regex.Pattern;
 
 public class MediaConvertParameters {
 
@@ -27,7 +28,6 @@ public class MediaConvertParameters {
     /**
      * ffmpeg [global_options] {[input_file_options] -i input_file} ... {[output_file_options] output_file} ...
      *
-     * @return
      */
     public String buildConvertCommand() {
         return " -y "
@@ -38,6 +38,12 @@ public class MediaConvertParameters {
                 + " -vf scale=iw*" + gifScale + ":ih*" + gifScale
                 + " \"" + getOutputGifInfo().getAbsolutePath() + "\"";
     }
+
+    public static boolean validateMediaStartTime(String time) {
+        return "".equals(time) || VIDEO_START_TIME_PATTERN.matcher(time).matches();
+    }
+
+    private static final Pattern VIDEO_START_TIME_PATTERN = Pattern.compile("(\\d{1,2})(:\\d{1,2})?(:\\d{1,2})?(\\.\\d{1,3})?", Pattern.CASE_INSENSITIVE);
 
     public String buildGetMediaInfoCommand() {
         return " -i \"" + videoFile.getAbsolutePath() + "\"";
