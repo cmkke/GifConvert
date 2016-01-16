@@ -17,6 +17,7 @@ public class Main extends Application {
         Looper.prepare();
 
         Parent root = FXMLLoader.load(getClass().getResource("sample.fxml"));
+        primaryStage.setResizable(false);
         primaryStage.setTitle("视频转Gif");
         primaryStage.getIcons().setAll(new Image(Main.class.getResource("app_icon.png").toExternalForm()));
         primaryStage.setScene(new Scene(root));
