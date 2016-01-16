@@ -16,7 +16,7 @@ public class MediaInfo {
 
     @Override
     public String toString() {
-        return "" + videoHeight + "x" + videoWidth + ", " + frameRate + "fps, " + duration;
+        return "" + videoWidth + "x" + videoHeight + ", " + frameRate + "fps, " + duration;
     }
 
 }
