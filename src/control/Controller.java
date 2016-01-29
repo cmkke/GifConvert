@@ -35,21 +35,30 @@ import java.util.ResourceBundle;
 public class Controller implements Initializable {
 
     private static final Object MSG_CONVERT_MEDIA = new Object();
+
     private static final Object MSG_HIDE_NOTIFICATION = new Object();
+
     @FXML
     private ImageView gifPreviewView;
+
     @FXML
     private ComboBox<Integer> gifFrameRateView;
+
     @FXML
     private ComboBox<Double> gifScaleView;
+
     @FXML
     private ComboBox<Integer> gifDurationView;
+
     @FXML
     private TextField gifStartTimeView;
+
     @FXML
     private Label mediaInfoView;
+
     @FXML
     private NotificationPane notificationPane;
+
     private File mediaHasChoosed;
 
     @Override
@@ -77,7 +86,7 @@ public class Controller implements Initializable {
 
             @Override
             public ValidationResult apply(Control control, String s) {
-                return ValidationResult.fromErrorIf(control, "时间格式不正确", !MediaConvertParameters.validateMediaStartTime(s));
+                return ValidationResult.fromErrorIf(control, "时间格式不正确", !MediaConverter.validateMediaStartTime(s));
             }
 
         });
@@ -108,8 +117,7 @@ public class Controller implements Initializable {
             notificationPane.hide();
         }
 
-        if (!MediaConvertParameters.validateMediaStartTime(gifStartTimeView.getText())) {
-            notificationPane.show("转换开始时间格式错误，例：00:01:05");
+        if (!MediaConverter.validateMediaStartTime(gifStartTimeView.getText())) {
             return;
         }
 
@@ -161,8 +169,8 @@ public class Controller implements Initializable {
 
                 mediaInfoView.setText(result.getMediaInfo().toString());
 
-                if (result.isConvertSuccess()) {
-                    showNotificationForAWhile("转换时间：" + result.getCostTime() + "，转换后大小：" + result.getFileSize(), 3000);
+                if (result.isSuccess()) {
+                    showNotificationForAWhile("转换时间：" + result.getCostTimeString() + "，转换后大小：" + result.getFileSize(), 3000);
                 } else {
                     showNotificationForAWhile("转换失败！！是否选择了有效的视频文件？", 3000);
                 }

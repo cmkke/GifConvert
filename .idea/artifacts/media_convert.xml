@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="media_convert">
+    <output-path>$PROJECT_DIR$/out/artifacts/media_convert</output-path>
+    <root id="archive" name="media_covert.jar">
+      <element id="dir-copy" path="$PROJECT_DIR$/src_media" />
+      <element id="dir-copy" path="$PROJECT_DIR$/src_command" />
+    </root>
+  </artifact>
+</component>

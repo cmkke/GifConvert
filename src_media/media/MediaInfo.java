@@ -3,8 +3,11 @@ package media;
 public class MediaInfo {
 
     private final int videoWidth;
+
     private final int videoHeight;
+
     private final int frameRate;
+
     private final String duration;
 
     public MediaInfo(int videoWidth, int videoHeight, int frameRate, String duration) {

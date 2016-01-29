@@ -1,14 +1,21 @@
 package media;
 
-import java.io.File;
-import java.util.regex.Pattern;
+import command.executor.CommandParameters;
 
-public class MediaConvertParameters {
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
+public class MediaConvertParameters implements CommandParameters {
 
     private final File videoFile;
+
     private final int gifFrameRate;
+
     private final double gifScale;
+
     private final int gifTime;
+
     private final String gifStartTime;
 
     public MediaConvertParameters(File videoFile, int gifFrameRate, double gifScale, String gifStartTime, int gifTime) {
@@ -27,26 +34,23 @@ public class MediaConvertParameters {
 
     /**
      * ffmpeg [global_options] {[input_file_options] -i input_file} ... {[output_file_options] output_file} ...
-     *
      */
-    public String buildConvertCommand() {
-        return " -y "
-                + "-ss " + gifStartTime
-                + " -i \"" + videoFile.getAbsolutePath() + "\""
-                + " -t " + gifTime
-                + " -r " + gifFrameRate
-                + " -vf scale=iw*" + gifScale + ":ih*" + gifScale
-                + " \"" + getOutputGifInfo().getAbsolutePath() + "\"";
-    }
-
-    public static boolean validateMediaStartTime(String time) {
-        return "".equals(time) || VIDEO_START_TIME_PATTERN.matcher(time).matches();
-    }
-
-    private static final Pattern VIDEO_START_TIME_PATTERN = Pattern.compile("(\\d{1,2})(:\\d{1,2})?(:\\d{1,2})?(\\.\\d{1,3})?", Pattern.CASE_INSENSITIVE);
-
-    public String buildGetMediaInfoCommand() {
-        return " -i \"" + videoFile.getAbsolutePath() + "\"";
+    @Override
+    public List<String> buildConvertCommand() {
+        List<String> command = new ArrayList<>();
+        command.add("-y");
+        command.add("-ss");
+        command.add(gifStartTime);
+        command.add("-i");
+        command.add(videoFile.getAbsolutePath());
+        command.add("-t");
+        command.add("" + gifTime);
+        command.add("-r");
+        command.add("" + gifFrameRate);
+        command.add("-vf");
+        command.add("scale=iw*" + gifScale + ":ih*" + gifScale);
+        command.add(getOutputGifInfo().getAbsolutePath());
+        return command;
     }
 
     public File getOutputGifInfo() {

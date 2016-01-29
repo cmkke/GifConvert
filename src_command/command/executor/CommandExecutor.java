@@ -1,4 +1,4 @@
-package executor;
+package command.executor;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -7,7 +7,9 @@ import java.util.List;
 public class CommandExecutor {
 
     private final Class loaderClass;
+
     private final String executorName;
+
     private final File executorFile;
 
     public CommandExecutor(Class loaderClass, String executorName) {
@@ -37,7 +39,7 @@ public class CommandExecutor {
         }
     }
 
-    public void ensureExecutorAvailable() {
+    private void ensureExecutorAvailable() {
         if (executorFile.exists()) {
             System.out.println("executor exist");
             return;
@@ -46,16 +48,21 @@ public class CommandExecutor {
         copyExecutorToTempDirectory();
     }
 
-    public CommandExecuteResult execute(String commandParameters) {
+    public CommandExecuteResult execute(CommandParameters commandParameters) {
         ensureExecutorAvailable();
 
-        final String command = executorFile.getAbsolutePath() + " " + commandParameters;
-        System.out.println(command);
+        final long startTime = System.currentTimeMillis();
         try {
-            Process converterProcess = Runtime.getRuntime().exec(command);
+            List<String> command = new ArrayList<>();
+            command.add(executorName);
+            command.addAll(commandParameters.buildConvertCommand());
+            ProcessBuilder processBuilder = new ProcessBuilder(command);
+            processBuilder.directory(executorFile.getParentFile());
+            processBuilder.redirectErrorStream(true);
+            Process converterProcess = processBuilder.start();
 
             List<String> messages = new ArrayList<>();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(converterProcess.getErrorStream()));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(converterProcess.getInputStream()));
             while (true) {
                 String message = reader.readLine();
                 if (message == null) {
@@ -64,12 +71,12 @@ public class CommandExecutor {
                 messages.add(message);
             }
 
-            return new CommandExecuteResult(converterProcess.waitFor() == 0, messages);
+            return new CommandExecuteResult(converterProcess.waitFor() == 0, System.currentTimeMillis() - startTime, messages);
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
 
-        return new CommandExecuteResult(false, null);
+        return new CommandExecuteResult(false, -1, null);
     }
 
 }
