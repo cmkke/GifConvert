@@ -8,18 +8,18 @@ import java.util.List;
 
 public class MediaConvertParameters implements CommandParameters {
 
-    private final File videoFile;
+    private final File mediaFile;
 
     private final int gifFrameRate;
 
     private final double gifScale;
 
-    private final int gifTime;
+    private final int duration;
 
     private final String gifStartTime;
 
-    public MediaConvertParameters(File videoFile, int gifFrameRate, double gifScale, String gifStartTime, int gifTime) {
-        this.videoFile = videoFile;
+    public MediaConvertParameters(File mediaFile, int gifFrameRate, double gifScale, String gifStartTime, int duration) {
+        this.mediaFile = mediaFile;
         this.gifFrameRate = gifFrameRate;
         this.gifScale = gifScale;
 
@@ -29,7 +29,7 @@ public class MediaConvertParameters implements CommandParameters {
             this.gifStartTime = gifStartTime;
         }
 
-        this.gifTime = gifTime;
+        this.duration = duration;
     }
 
     /**
@@ -42,9 +42,9 @@ public class MediaConvertParameters implements CommandParameters {
         command.add("-ss");
         command.add(gifStartTime);
         command.add("-i");
-        command.add(videoFile.getAbsolutePath());
+        command.add(mediaFile.getAbsolutePath());
         command.add("-t");
-        command.add("" + gifTime);
+        command.add("" + duration);
         command.add("-r");
         command.add("" + gifFrameRate);
         command.add("-vf");
@@ -53,8 +53,16 @@ public class MediaConvertParameters implements CommandParameters {
         return command;
     }
 
+    public int getDuration() {
+        return duration;
+    }
+
+    public MediaInfoParameters buildMediaInfoCommand() {
+        return new MediaInfoParameters(mediaFile);
+    }
+
     public File getOutputGifInfo() {
-        return new File(videoFile.getParent(), videoFile.getName() + ".gif");
+        return new File(mediaFile.getParent(), mediaFile.getName() + ".gif");
     }
 
 }

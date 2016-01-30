@@ -7,6 +7,7 @@
 <?import javafx.scene.input.KeyCodeCombination?>
 <?import javafx.scene.layout.*?>
 <?import org.controlsfx.control.NotificationPane?>
+<?import org.controlsfx.control.StatusBar?>
 <NotificationPane xmlns:fx="http://javafx.com/fxml/1" prefHeight="600.0" prefWidth="900.0"
                   xmlns="http://javafx.com/javafx/8"
                   fx:controller="control.Controller" fx:id="notificationPane" showFromTop="false">
@@ -92,11 +93,11 @@
             </center>
 
             <bottom>
-                <ToolBar BorderPane.alignment="CENTER">
-                    <items>
+                <StatusBar BorderPane.alignment="CENTER" text="" fx:id="statusBar">
+                    <leftItems>
                         <Label fx:id="mediaInfoView"/>
-                    </items>
-                </ToolBar>
+                    </leftItems>
+                </StatusBar>
             </bottom>
 
         </BorderPane>

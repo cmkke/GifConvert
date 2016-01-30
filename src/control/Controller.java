@@ -17,6 +17,7 @@ import media.MediaConvertParameters;
 import media.MediaConvertResult;
 import media.MediaConverter;
 import org.controlsfx.control.NotificationPane;
+import org.controlsfx.control.StatusBar;
 import org.controlsfx.validation.ValidationResult;
 import org.controlsfx.validation.ValidationSupport;
 import org.controlsfx.validation.Validator;
@@ -59,7 +60,12 @@ public class Controller implements Initializable {
     @FXML
     private NotificationPane notificationPane;
 
+    @FXML
+    private StatusBar statusBar;
+
     private File mediaHasChoosed;
+
+    private MediaConverter mediaConverter = new MediaConverter();
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -90,6 +96,8 @@ public class Controller implements Initializable {
             }
 
         });
+
+        statusBar.progressProperty().bind(mediaConverter.convertProgressProperty());
     }
 
     @FXML
@@ -135,11 +143,12 @@ public class Controller implements Initializable {
             @Override
             public void run() {
                 showLoadingImage();
-                showLoadingFinish(MediaConverter.convert(new MediaConvertParameters(mediaHasChoosed,
+                MediaConvertResult result = mediaConverter.convert(new MediaConvertParameters(mediaHasChoosed,
                         gifFrameRateView.getValue(),
                         gifScaleView.getValue(),
                         gifStartTimeView.getText(),
-                        gifDurationView.getValue())));
+                        gifDurationView.getValue()));
+                showLoadingFinish(result);
             }
 
         }, MSG_CONVERT_MEDIA, delay));

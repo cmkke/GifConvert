@@ -1,5 +1,8 @@
 package command.executor;
 
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,6 +14,8 @@ public class CommandExecutor {
     private final String executorName;
 
     private final File executorFile;
+
+    private StringProperty processStatus = new SimpleStringProperty();
 
     public CommandExecutor(Class loaderClass, String executorName) {
         this.loaderClass = loaderClass;
@@ -68,6 +73,7 @@ public class CommandExecutor {
                 if (message == null) {
                     break;
                 }
+                processStatus.set(message);
                 messages.add(message);
             }
 
@@ -77,6 +83,10 @@ public class CommandExecutor {
         }
 
         return null;
+    }
+
+    public StringProperty processStatusProperty() {
+        return processStatus;
     }
 
 }

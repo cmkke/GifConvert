@@ -3,13 +3,18 @@ package media;
 import com.sun.istack.internal.NotNull;
 import command.executor.CommandExecuteResult;
 import command.executor.CommandExecutor;
+import javafx.application.Platform;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class MediaConverter {
+public class MediaConverter extends CommandExecutor {
 
     public static final List<Integer> SUPPORT_GIF_TIME = Arrays.asList(5, 10, 15, 20, 30, 60);
 
@@ -27,69 +32,65 @@ public class MediaConverter {
 
     private static final String CONVERTER_NAME = "ffmpeg.exe";
 
-    private static final CommandExecutor MEDIA_CONVERTER_COMMAND_EXECUTOR = new CommandExecutor(MediaConverter.class, CONVERTER_NAME);
-
-    private static final Pattern VIDEO_SIZE_PATTERN = Pattern.compile("(\\d{2,4})x(\\d{2,4})", Pattern.CASE_INSENSITIVE);
-
-    private static final Pattern VIDEO_FRAME_RATE_PATTERN = Pattern.compile("(\\d+) fps", Pattern.CASE_INSENSITIVE);
-
-    private static final Pattern VIDEO_DURATION_PATTERN = Pattern.compile("Duration: (\\S+)", Pattern.CASE_INSENSITIVE);
-
     private static final Pattern VIDEO_START_TIME_PATTERN = Pattern.compile("(\\d{1,2})(:\\d{1,2})?(:\\d{1,2})?(\\.\\d{1,3})?", Pattern.CASE_INSENSITIVE);
 
-    private MediaConverter() {
+    private static final Pattern CONVERT_PROGRESS_PATTERN = Pattern.compile("frame=.+ fps=.+ q=.+ (size|Lsize)=.+ time=(?<hour>\\d{2}):(?<minute>\\d{2}):(?<second>\\d{2}).+ bitrate=.+", Pattern.CASE_INSENSITIVE);
+
+    private DoubleProperty convertProgress = new SimpleDoubleProperty(Double.NaN);
+
+    public MediaConverter() {
+        super(MediaConverter.class, CONVERTER_NAME);
     }
 
-    private static MediaInfo parseMediaInfo(List<String> messages) {
-        int width = -1;
-        int height = -1;
-        int frameRate = -1;
-        String duration = null;
-
-        for (String message : messages) {
-            if (message.startsWith("Output ")) {
-                break;
-            }
-
-            for (String token : message.split(",")) {
-                Matcher videoSizeMatcher = VIDEO_SIZE_PATTERN.matcher(token);
-                if (videoSizeMatcher.find()) {
-                    width = Integer.parseInt(videoSizeMatcher.group(1));
-                    height = Integer.parseInt(videoSizeMatcher.group(2));
-                }
-
-                Matcher frameRateMatcher = VIDEO_FRAME_RATE_PATTERN.matcher(token);
-                if (frameRateMatcher.find()) {
-                    frameRate = Integer.parseInt(frameRateMatcher.group(1));
-                }
-
-                Matcher videoDurationMatcher = VIDEO_DURATION_PATTERN.matcher(token);
-                if (videoDurationMatcher.find()) {
-                    duration = videoDurationMatcher.group(1);
-                }
-            }
-        }
-
-        if (width == -1 || height == -1 || frameRate == -1 || duration == null) {
-            return null;
-        }
-
-        return new MediaInfo(width, height, frameRate, duration);
+    public static boolean validateMediaStartTime(String time) {
+        return "".equals(time) || VIDEO_START_TIME_PATTERN.matcher(time).matches();
     }
 
-    public static MediaConvertResult convert(@NotNull MediaConvertParameters convertInfo) {
-        convertInfo.getOutputGifInfo().delete();
-        CommandExecuteResult convertResult = MEDIA_CONVERTER_COMMAND_EXECUTOR.execute(convertInfo);
+    public MediaConvertResult convert(@NotNull MediaConvertParameters convertInfo) {
+        if (convertInfo.getOutputGifInfo().exists() && convertInfo.getOutputGifInfo().exists()) {
+            convertInfo.getOutputGifInfo().delete();
+        }
+
+        updateProgressOnUIiThread(Double.NEGATIVE_INFINITY);
+        MediaInfo mediaInfo = new MediaInfo(execute(convertInfo.buildMediaInfoCommand()).getMessages());
+
+        ChangeListener<String> changeListener = new ChangeListener<String>() {
+
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                Matcher matcher = CONVERT_PROGRESS_PATTERN.matcher(newValue);
+                if (matcher.matches()) {
+                    final long duration = Integer.parseInt(matcher.group("hour")) * 60 * 60 + Integer.parseInt(matcher.group("minute")) * 60 + Integer.parseInt(matcher.group("second"));
+                    updateProgressOnUIiThread(1.0 * duration / convertInfo.getDuration());
+                }
+            }
+
+        };
+        processStatusProperty().addListener(changeListener);
+        CommandExecuteResult convertResult = execute(convertInfo);
+        processStatusProperty().removeListener(changeListener);
+        updateProgressOnUIiThread(Double.NaN);
         return new MediaConvertResult(
-                parseMediaInfo(convertResult.getMessages()),
+                mediaInfo,
                 convertInfo.getOutputGifInfo(),
                 convertResult.isSuccess(),
                 convertResult.getCostTime(),
                 convertResult.getMessages());
     }
 
-    public static boolean validateMediaStartTime(String time) {
-        return "".equals(time) || VIDEO_START_TIME_PATTERN.matcher(time).matches();
+    public DoubleProperty convertProgressProperty() {
+        return convertProgress;
+    }
+
+    private void updateProgressOnUIiThread(double progress) {
+        Platform.runLater(new Runnable() {
+
+            @Override
+            public void run() {
+                convertProgress.set(progress);
+            }
+
+        });
     }
 
 }
