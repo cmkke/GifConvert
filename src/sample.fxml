@@ -7,8 +7,8 @@
 <?import javafx.scene.input.KeyCodeCombination?>
 <?import javafx.scene.layout.*?>
 <?import org.controlsfx.control.NotificationPane?>
-<NotificationPane prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/8"
-                  xmlns:fx="http://javafx.com/fxml/1"
+<NotificationPane xmlns:fx="http://javafx.com/fxml/1" prefHeight="600.0" prefWidth="900.0"
+                  xmlns="http://javafx.com/javafx/8"
                   fx:controller="control.Controller" fx:id="notificationPane" showFromTop="false">
     <content>
 
@@ -81,7 +81,7 @@
             <center>
                 <BorderPane BorderPane.alignment="CENTER">
                     <center>
-                        <ImageView fx:id="gifPreviewView" fitHeight="500.0" fitWidth="500.0" pickOnBounds="true"
+                        <ImageView fx:id="gifPreviewView" fitHeight="500.0" fitWidth="700.0" pickOnBounds="true"
                                    preserveRatio="true" BorderPane.alignment="CENTER">
                             <image>
                                 <Image backgroundLoading="true" url="@control/loading6.gif"/>

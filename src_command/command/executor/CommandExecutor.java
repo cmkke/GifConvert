@@ -76,7 +76,7 @@ public class CommandExecutor {
             e.printStackTrace();
         }
 
-        return new CommandExecuteResult(false, -1, null);
+        return null;
     }
 
 }

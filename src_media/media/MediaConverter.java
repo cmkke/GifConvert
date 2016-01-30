@@ -41,7 +41,7 @@ public class MediaConverter {
     }
 
     private static MediaInfo parseMediaInfo(List<String> messages) {
-        int width = -1;///////////////////.
+        int width = -1;
         int height = -1;
         int frameRate = -1;
         String duration = null;
