@@ -2,7 +2,6 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
-<?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.input.KeyCodeCombination?>
 <?import javafx.scene.layout.*?>
@@ -84,9 +83,6 @@
                     <center>
                         <ImageView fx:id="gifPreviewView" fitHeight="500.0" fitWidth="700.0" pickOnBounds="true"
                                    preserveRatio="true" BorderPane.alignment="CENTER">
-                            <image>
-                                <Image backgroundLoading="true" url="@control/loading6.gif"/>
-                            </image>
                         </ImageView>
                     </center>
                 </BorderPane>
