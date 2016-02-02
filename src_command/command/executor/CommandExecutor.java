@@ -1,10 +1,10 @@
 package command.executor;
 
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
+import javafx.collections.ObservableList;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class CommandExecutor {
@@ -14,8 +14,6 @@ public class CommandExecutor {
     private final String executorName;
 
     private final File executorFile;
-
-    private StringProperty processStatus = new SimpleStringProperty();
 
     public CommandExecutor(Class loaderClass, String executorName) {
         this.loaderClass = loaderClass;
@@ -53,7 +51,7 @@ public class CommandExecutor {
         copyExecutorToTempDirectory();
     }
 
-    public CommandExecuteResult execute(CommandParameters commandParameters) {
+    public CommandExecuteResult execute(CommandParameters commandParameters, ObservableList<String> processStatus) {
         ensureExecutorAvailable();
 
         final long startTime = System.currentTimeMillis();
@@ -66,27 +64,23 @@ public class CommandExecutor {
             processBuilder.redirectErrorStream(true);
             Process converterProcess = processBuilder.start();
 
-            List<String> messages = new ArrayList<>();
             BufferedReader reader = new BufferedReader(new InputStreamReader(converterProcess.getInputStream()));
             while (true) {
                 String message = reader.readLine();
                 if (message == null) {
                     break;
                 }
-                processStatus.set(message);
-                messages.add(message);
+                processStatus.add(message);
             }
 
-            return new CommandExecuteResult(converterProcess.waitFor() == 0, System.currentTimeMillis() - startTime, messages);
+            return new CommandExecuteResult(converterProcess.waitFor() == 0,
+                    System.currentTimeMillis() - startTime,
+                    Arrays.asList(processStatus.toArray(new String[processStatus.size()])));
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
 
         return null;
-    }
-
-    public StringProperty processStatusProperty() {
-        return processStatus;
     }
 
 }

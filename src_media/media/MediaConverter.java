@@ -6,8 +6,9 @@ import command.executor.CommandExecutor;
 import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
 
 import java.util.Arrays;
 import java.util.List;
@@ -28,7 +29,7 @@ public class MediaConverter extends CommandExecutor {
 
     public static final Integer DEFAULT_GIF_FRAME_RATE = SUPPORT_GIF_FRAME_RATE.get(2);
 
-    public static final List<String> SUPPORT_VIDEO_FORMAT = Arrays.asList("*.mp4", "*.avi", "*.mkv", "*.mov");
+    public static final List<String> SUPPORT_VIDEO_FORMAT = Arrays.asList("*.mp4", "*.avi", "*.mkv", "*.mov", "*.flv");
 
     private static final String CONVERTER_NAME = "ffmpeg.exe";
 
@@ -52,24 +53,33 @@ public class MediaConverter extends CommandExecutor {
         }
 
         updateProgressOnUIiThread(Double.NEGATIVE_INFINITY);
-        MediaInfo mediaInfo = new MediaInfo(execute(convertInfo.buildMediaInfoCommand()).getMessages());
+        MediaInfo mediaInfo = new MediaInfo(execute(convertInfo.buildMediaInfoCommand(), FXCollections.observableArrayList()).getMessages());
 
-        ChangeListener<String> changeListener = new ChangeListener<String>() {
+        ListChangeListener<String> changeListener = new ListChangeListener<String>() {
 
             @Override
-            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                Matcher matcher = CONVERT_PROGRESS_PATTERN.matcher(newValue);
-                if (matcher.matches()) {
-                    final long duration = Integer.parseInt(matcher.group("hour")) * 60 * 60 + Integer.parseInt(matcher.group("minute")) * 60 + Integer.parseInt(matcher.group("second"));
-                    updateProgressOnUIiThread(1.0 * duration / convertInfo.getDuration());
+            public void onChanged(Change<? extends String> c) {
+                while (c.next()) {
+                    if (c.wasAdded()) {
+                        for (String message : c.getAddedSubList()) {
+                            Matcher matcher = CONVERT_PROGRESS_PATTERN.matcher(message);
+                            if (matcher.matches()) {
+                                final long duration = Integer.parseInt(matcher.group("hour")) * 60 * 60 + Integer.parseInt(matcher.group("minute")) * 60 + Integer.parseInt(matcher.group("second"));
+                                updateProgressOnUIiThread(1.0 * duration / convertInfo.getDuration());
+                            }
+                        }
+                    }
                 }
             }
 
         };
-        processStatusProperty().addListener(changeListener);
-        CommandExecuteResult convertResult = execute(convertInfo);
-        processStatusProperty().removeListener(changeListener);
+
+        ObservableList<String> processStatus = FXCollections.observableArrayList();
+        processStatus.addListener(changeListener);
+        CommandExecuteResult convertResult = execute(convertInfo, processStatus);
+        processStatus.removeListener(changeListener);
         updateProgressOnUIiThread(Double.NaN);
+
         return new MediaConvertResult(
                 mediaInfo,
                 convertInfo.getOutputGifInfo(),
