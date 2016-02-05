@@ -13,7 +13,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.FileChooser;
-import media.MediaConvertParameters;
+import media.GifConvertParameters;
 import media.MediaConvertResult;
 import media.MediaConverter;
 import org.controlsfx.control.NotificationPane;
@@ -69,14 +69,14 @@ public class Controller implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        gifFrameRateView.getItems().addAll(MediaConverter.SUPPORT_GIF_FRAME_RATE);
-        gifFrameRateView.setValue(MediaConverter.DEFAULT_GIF_FRAME_RATE);
+        gifFrameRateView.getItems().addAll(GifConvertParameters.SUPPORT_GIF_FRAME_RATE);
+        gifFrameRateView.setValue(GifConvertParameters.DEFAULT_GIF_FRAME_RATE);
 
-        gifScaleView.getItems().addAll(MediaConverter.SUPPORT_GIF_SCALE);
-        gifScaleView.setValue(MediaConverter.DEFAULT_GIF_SCALE);
+        gifScaleView.getItems().addAll(GifConvertParameters.SUPPORT_GIF_SCALE);
+        gifScaleView.setValue(GifConvertParameters.DEFAULT_GIF_SCALE);
 
-        gifDurationView.getItems().addAll(MediaConverter.SUPPORT_GIF_TIME);
-        gifDurationView.setValue(MediaConverter.DEFAULT_GIF_TIME);
+        gifDurationView.getItems().addAll(GifConvertParameters.SUPPORT_GIF_TIME);
+        gifDurationView.setValue(GifConvertParameters.DEFAULT_GIF_TIME);
 
         gifStartTimeView.textProperty().addListener(new ChangeListener<String>() {
 
@@ -92,7 +92,7 @@ public class Controller implements Initializable {
 
             @Override
             public ValidationResult apply(Control control, String s) {
-                return ValidationResult.fromErrorIf(control, "时间格式不正确", !MediaConverter.validateMediaStartTime(s));
+                return ValidationResult.fromErrorIf(control, "时间格式不正确", !GifConvertParameters.validateMediaStartTime(s));
             }
 
         });
@@ -110,7 +110,7 @@ public class Controller implements Initializable {
     @FXML
     private void onChooseVideo(ActionEvent event) {
         SmartFileChooser fileChooser = new SmartFileChooser();
-        fileChooser.addExtensionFilters(new FileChooser.ExtensionFilter("视频文件", MediaConverter.SUPPORT_VIDEO_FORMAT));
+        fileChooser.addExtensionFilters(new FileChooser.ExtensionFilter("视频文件", GifConvertParameters.SUPPORT_VIDEO_FORMAT));
         fileChooser.addExtensionFilters(new FileChooser.ExtensionFilter("所有文件", "*.*"));
         mediaHasChoosed = fileChooser.showOpenDialog(gifPreviewView.getScene().getWindow());
 
@@ -127,7 +127,7 @@ public class Controller implements Initializable {
             notificationPane.hide();
         }
 
-        if (!MediaConverter.validateMediaStartTime(gifStartTimeView.getText())) {
+        if (!GifConvertParameters.validateMediaStartTime(gifStartTimeView.getText())) {
             return;
         }
 
@@ -145,7 +145,7 @@ public class Controller implements Initializable {
             @Override
             public void run() {
                 showLoadingImage();
-                MediaConvertResult result = mediaConverter.convert(new MediaConvertParameters(mediaHasChoosed,
+                MediaConvertResult result = mediaConverter.convert(new GifConvertParameters(mediaHasChoosed,
                         gifFrameRateView.getValue(),
                         gifScaleView.getValue(),
                         gifStartTimeView.getText(),

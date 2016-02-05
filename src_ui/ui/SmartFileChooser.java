@@ -10,6 +10,8 @@ import java.util.prefs.Preferences;
 
 public class SmartFileChooser {
 
+    private static final String LAST_VISIT_DIRECTORY = "last_visit_directory";
+
     private final FileChooser fileChooser = new FileChooser();
 
     public File showOpenDialog(final Window ownerWindow) {
@@ -44,7 +46,5 @@ public class SmartFileChooser {
         Preferences preferences = Preferences.userNodeForPackage(SmartFileChooser.class);
         preferences.put(LAST_VISIT_DIRECTORY, folder.getAbsolutePath());
     }
-
-    private static final String LAST_VISIT_DIRECTORY = "last_visit_directory";
 
 }
