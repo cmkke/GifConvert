@@ -4,9 +4,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by youfang on 2016/2/5.
- */
 public class MP4ConvertParameters extends MediaCommandParameters {
 
     public MP4ConvertParameters(File inputFile, int duration) {
@@ -15,8 +12,7 @@ public class MP4ConvertParameters extends MediaCommandParameters {
 
     @Override
     public File getOutputFile() {
-        final String name = getInputFile().getName().substring(0, getInputFile().getName().lastIndexOf("."));
-        return new File(getInputFile().getParent(), name + ".mp4");
+        return new File(getInputFile().getParent(), getInputFile().getName() + ".mp4");
     }
 
     @Override
@@ -28,4 +24,5 @@ public class MP4ConvertParameters extends MediaCommandParameters {
         command.add(getOutputFile().getAbsolutePath());
         return command;
     }
+
 }
