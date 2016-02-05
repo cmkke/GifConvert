@@ -22,13 +22,11 @@ import org.controlsfx.validation.ValidationResult;
 import org.controlsfx.validation.ValidationSupport;
 import org.controlsfx.validation.Validator;
 import org.controlsfx.validation.decoration.GraphicValidationDecoration;
-import ui.HelpWizard;
 import ui.SmartFileChooser;
 import util.Looper;
 import util.Message;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -204,11 +202,6 @@ public class Controller implements Initializable {
             }
 
         }, MSG_HIDE_NOTIFICATION, 3000, true));
-    }
-
-    @FXML
-    private void onAbout(ActionEvent event) throws IOException {
-        new HelpWizard(gifFrameRateView.getScene().getWindow()).show();
     }
 
     @FXML

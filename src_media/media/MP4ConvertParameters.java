@@ -6,7 +6,7 @@ import java.util.List;
 
 public class MP4ConvertParameters extends MediaCommandParameters {
 
-    public MP4ConvertParameters(File inputFile, int duration) {
+    public MP4ConvertParameters(File inputFile) {
         super(inputFile, -1);
     }
 

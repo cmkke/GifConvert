@@ -27,11 +27,6 @@
                                 </MenuItem>
                             </items>
                         </Menu>
-                        <Menu text="帮助">
-                            <items>
-                                <MenuItem onAction="#onAbout" text="关于"/>
-                            </items>
-                        </Menu>
                     </menus>
                 </MenuBar>
             </top>
@@ -39,7 +34,7 @@
             <right>
                 <BorderPane BorderPane.alignment="CENTER">
                     <center>
-                        <Pane BorderPane.alignment="CENTER">
+                        <VBox BorderPane.alignment="CENTER">
                             <children>
                                 <GridPane>
                                     <columnConstraints>
@@ -70,10 +65,11 @@
                                     </children>
                                 </GridPane>
                             </children>
+
                             <BorderPane.margin>
                                 <Insets top="10.0" right="10.0" left="10.0" bottom="10"/>
                             </BorderPane.margin>
-                        </Pane>
+                        </VBox>
                     </center>
                 </BorderPane>
             </right>
