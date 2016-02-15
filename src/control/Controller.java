@@ -159,7 +159,7 @@ public class Controller implements Initializable {
 
             @Override
             public void run() {
-                gifPreviewView.setImage(new Image(Controller.class.getResource("loading2.gif").toExternalForm(), true));
+                gifPreviewView.setImage(new Image(Controller.class.getResource("loading.gif").toExternalForm(), true));
             }
 
         });
