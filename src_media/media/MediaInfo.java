@@ -10,17 +10,17 @@ public class MediaInfo {
 
     private static final Pattern VIDEO_SIZE_PATTERN = Pattern.compile("(?<width>\\d{2,4})x(?<height>\\d{2,4})", Pattern.CASE_INSENSITIVE);
 
-    private static final Pattern VIDEO_FRAME_RATE_PATTERN = Pattern.compile("(?<frame>\\d+) fps", Pattern.CASE_INSENSITIVE);
+    private static final Pattern VIDEO_FRAME_RATE_PATTERN = Pattern.compile("(?<frame>[0-9.]+) fps", Pattern.CASE_INSENSITIVE);
 
     private static final Pattern VIDEO_DURATION_PATTERN = Pattern.compile("Duration: (?<duration>\\S+)", Pattern.CASE_INSENSITIVE);
 
-    private final long duration;
+    private final double duration;
 
     private int videoWidth;
 
     private int videoHeight;
 
-    private int frameRate;
+    private double frameRate;
 
     private String durationDescription;
 
@@ -31,7 +31,7 @@ public class MediaInfo {
         if (matcher.matches()) {
             duration = Integer.parseInt(matcher.group("hour")) * 60 * 60 + Integer.parseInt(matcher.group("minute")) * 60 + Integer.parseInt(matcher.group("second"));
         } else {
-            duration = -1;
+            duration = 0;
         }
     }
 
@@ -40,7 +40,7 @@ public class MediaInfo {
      *
      * @return
      */
-    public long getDuration() {
+    public double getDuration() {
         return duration;
     }
 
@@ -64,7 +64,7 @@ public class MediaInfo {
 
                 Matcher frameRateMatcher = VIDEO_FRAME_RATE_PATTERN.matcher(token);
                 if (frameRateMatcher.find()) {
-                    frameRate = Integer.parseInt(frameRateMatcher.group("frame"));
+                    frameRate = Double.parseDouble(frameRateMatcher.group("frame"));
                 }
 
                 Matcher videoDurationMatcher = VIDEO_DURATION_PATTERN.matcher(token);

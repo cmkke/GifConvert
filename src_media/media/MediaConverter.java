@@ -15,7 +15,7 @@ import java.util.regex.Pattern;
 
 public class MediaConverter extends CommandExecutor {
 
-    private static final String CONVERTER_NAME = "ffmpeg.exe";
+    private static final String CONVERTER_NAME = "ffmpeg-20160213-git-588e2e3-win64-static.exe";
 
     private static final Pattern CONVERT_PROGRESS_PATTERN = Pattern.compile("frame=.+ fps=.+ q=.+ (size|Lsize)=.+ time=(?<hour>\\d{2}):(?<minute>\\d{2}):(?<second>\\d{2}).+ bitrate=.+", Pattern.CASE_INSENSITIVE);
 

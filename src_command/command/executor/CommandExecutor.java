@@ -57,10 +57,10 @@ public class CommandExecutor {
         final long startTime = System.currentTimeMillis();
         try {
             List<String> command = new ArrayList<>();
-            command.add(executorName);
+            command.add(executorFile.getAbsolutePath());
             command.addAll(commandParameters.buildConvertCommand());
             ProcessBuilder processBuilder = new ProcessBuilder(command);
-            processBuilder.directory(executorFile.getParentFile());
+//            processBuilder.directory(executorFile.getParentFile());
             processBuilder.redirectErrorStream(true);
             Process converterProcess = processBuilder.start();
 

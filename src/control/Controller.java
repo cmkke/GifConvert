@@ -6,22 +6,19 @@ import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Control;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.Slider;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.FileChooser;
 import media.GifConvertParameters;
 import media.MediaConvertResult;
 import media.MediaConverter;
+import media.MediaInfo;
 import org.controlsfx.control.NotificationPane;
+import org.controlsfx.control.RangeSlider;
 import org.controlsfx.control.StatusBar;
-import org.controlsfx.validation.ValidationResult;
-import org.controlsfx.validation.ValidationSupport;
-import org.controlsfx.validation.Validator;
-import org.controlsfx.validation.decoration.GraphicValidationDecoration;
+import org.controlsfx.control.spreadsheet.StringConverterWithFormat;
 import ui.SmartFileChooser;
 import util.Looper;
 import util.Message;
@@ -41,17 +38,13 @@ public class Controller implements Initializable {
     private ImageView gifPreviewView;
 
     @FXML
-    private ComboBox<Integer> gifFrameRateView;
+    private Slider gifFrameRateView;
 
     @FXML
-    private ComboBox<Double> gifScaleView;
+    private Slider gifScaleView;
 
     @FXML
-    private ComboBox<Integer> gifDurationView;
-
-    @FXML
-    private TextField gifStartTimeView;
-
+    private RangeSlider gifConvertRange;
     @FXML
     private Label mediaInfoView;
 
@@ -61,93 +54,95 @@ public class Controller implements Initializable {
     @FXML
     private StatusBar statusBar;
 
-    private File mediaHasChoosed;
+    private File mediaToBeConverted;
 
-    private MediaConverter mediaConverter = new MediaConverter();
+    private final MediaConverter mediaConverter = new MediaConverter();
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        gifFrameRateView.getItems().addAll(GifConvertParameters.SUPPORT_GIF_FRAME_RATE);
-        gifFrameRateView.setValue(GifConvertParameters.DEFAULT_GIF_FRAME_RATE);
-
-        gifScaleView.getItems().addAll(GifConvertParameters.SUPPORT_GIF_SCALE);
-        gifScaleView.setValue(GifConvertParameters.DEFAULT_GIF_SCALE);
-
-        gifDurationView.getItems().addAll(GifConvertParameters.SUPPORT_GIF_TIME);
-        gifDurationView.setValue(GifConvertParameters.DEFAULT_GIF_TIME);
-
-        gifStartTimeView.textProperty().addListener(new ChangeListener<String>() {
-
-            @Override
-            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                reloadMediaConvert(3000);
-            }
-
-        });
-        ValidationSupport startTimeValidationSupport = new ValidationSupport();
-        startTimeValidationSupport.setValidationDecorator(new GraphicValidationDecoration());
-        startTimeValidationSupport.registerValidator(gifStartTimeView, new Validator<String>() {
-
-            @Override
-            public ValidationResult apply(Control control, String s) {
-                return ValidationResult.fromErrorIf(control, "时间格式不正确", !GifConvertParameters.validateMediaStartTime(s));
-            }
-
-        });
-
         statusBar.progressProperty().bind(mediaConverter.convertProgressProperty());
+
+        gifConvertRange.lowValueProperty().addListener(changeListener);
+        gifConvertRange.highValueProperty().addListener(changeListener);
+        gifConvertRange.setLabelFormatter(new StringConverterWithFormat<Number>() {
+
+            @Override
+            public String toString(Number object) {
+                return String.format("%02d:%02d", object.intValue() / 60, object.intValue() % 60);
+            }
+
+            @Override
+            public Number fromString(String string) {
+                return Double.valueOf(string);
+            }
+
+        });
+        gifFrameRateView.valueProperty().addListener(changeListener);
+        gifScaleView.valueProperty().addListener(changeListener);
 
         showLoadingImage();
     }
 
-    @FXML
-    private void onChooseScale(ActionEvent event) {
-        reloadMediaConvert(0);
-    }
+    private final ChangeListener<Number> changeListener = new ChangeListener<Number>() {
+
+        @Override
+        public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+            reloadMediaConvert(3000);
+        }
+
+    };
 
     @FXML
     private void onChooseVideo(ActionEvent event) {
         SmartFileChooser fileChooser = new SmartFileChooser();
         fileChooser.addExtensionFilters(new FileChooser.ExtensionFilter("视频文件", GifConvertParameters.SUPPORT_VIDEO_FORMAT));
         fileChooser.addExtensionFilters(new FileChooser.ExtensionFilter("所有文件", "*.*"));
-        mediaHasChoosed = fileChooser.showOpenDialog(gifPreviewView.getScene().getWindow());
+        mediaToBeConverted = fileChooser.showOpenDialog(gifPreviewView.getScene().getWindow());
 
         reloadMediaConvert(0);
     }
 
-    @FXML
-    private void onChooseTime(ActionEvent event) {
-        reloadMediaConvert(0);
+    private void reloadRangeSlide(MediaInfo info) {
+        gifConvertRange.setVisible(true);
+        if (info.getDuration() < 60) {
+            gifConvertRange.setMajorTickUnit(5);
+        } else {
+            gifConvertRange.setMajorTickUnit(info.getDuration() / 10);
+        }
+        gifConvertRange.setMax(info.getDuration());
     }
 
     private void reloadMediaConvert(long delay) {
+        Looper.removeMessage(MSG_CONVERT_MEDIA);
+
         if (notificationPane.isShowing()) {
             notificationPane.hide();
         }
 
-        if (!GifConvertParameters.validateMediaStartTime(gifStartTimeView.getText())) {
+        if (mediaToBeConverted == null) {
             return;
         }
 
-        if (mediaHasChoosed == null) {
-            return;
-        }
-
-        if (!mediaHasChoosed.exists() || !mediaHasChoosed.isFile()) {
+        if (!mediaToBeConverted.exists() || !mediaToBeConverted.isFile()) {
             notificationPane.show("所选择的文件已被删除，请重新选择文件");
+            return;
         }
 
-        Looper.removeMessage(MSG_CONVERT_MEDIA);
+        if (gifConvertRange.getHighValue() - gifConvertRange.getLowValue() > 30) {
+            notificationPane.show("转换时间长度过长");
+            return;
+        }
+
         Looper.postMessage(new Message(new Runnable() {
 
             @Override
             public void run() {
                 showLoadingImage();
-                MediaConvertResult result = mediaConverter.convert(new GifConvertParameters(mediaHasChoosed,
+                MediaConvertResult result = mediaConverter.convert(new GifConvertParameters(mediaToBeConverted,
                         gifFrameRateView.getValue(),
                         gifScaleView.getValue(),
-                        gifStartTimeView.getText(),
-                        gifDurationView.getValue()));
+                        gifConvertRange.getLowValue(),
+                        gifConvertRange.getHighValue() - gifConvertRange.getLowValue()));
                 showLoadingFinish(result);
             }
 
@@ -159,11 +154,13 @@ public class Controller implements Initializable {
 
             @Override
             public void run() {
-                gifPreviewView.setImage(new Image(Controller.class.getResource("loading.gif").toExternalForm(), true));
+                gifPreviewView.setImage(loadingImage);
             }
 
         });
     }
+
+    private final Image loadingImage = new Image(Controller.class.getResource("loading.gif").toExternalForm(), true);
 
     private void showLoadingFinish(MediaConvertResult result) {
         Platform.runLater(new Runnable() {
@@ -177,6 +174,7 @@ public class Controller implements Initializable {
                 }
 
                 mediaInfoView.setText(result.getMediaInfo().toString());
+                reloadRangeSlide(result.getMediaInfo());
 
                 if (result.isSuccess()) {
                     showNotificationForAWhile("转换时间：" + result.getCostTimeString() + "，转换后大小：" + result.getFileSize(), 3000);
@@ -202,11 +200,6 @@ public class Controller implements Initializable {
             }
 
         }, MSG_HIDE_NOTIFICATION, 3000, true));
-    }
-
-    @FXML
-    private void onChooseFrame(ActionEvent event) {
-        reloadMediaConvert(0);
     }
 
 }

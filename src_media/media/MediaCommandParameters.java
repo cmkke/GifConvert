@@ -8,9 +8,9 @@ public abstract class MediaCommandParameters implements CommandParameters {
 
     private final File inputFile;
 
-    private final long duration;
+    private final double duration;
 
-    public MediaCommandParameters(File inputFile, int duration) {
+    public MediaCommandParameters(File inputFile, double duration) {
         this.inputFile = inputFile;
         this.duration = duration;
     }
@@ -21,7 +21,7 @@ public abstract class MediaCommandParameters implements CommandParameters {
         return inputFile;
     }
 
-    public long getDuration() {
+    public double getDuration() {
         return duration;
     }
 
