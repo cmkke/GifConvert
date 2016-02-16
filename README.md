@@ -4,7 +4,7 @@
 
 # 演示
 
-![v0 2](https://cloud.githubusercontent.com/assets/13044819/12372077/6d57b0b6-bc85-11e5-9821-72c1e066d798.gif)
+![v0.3](https://cloud.githubusercontent.com/assets/13044819/13077053/768771a6-d4f1-11e5-91cf-584dd645f6b0.gif)
 
 # 实现原理
 
