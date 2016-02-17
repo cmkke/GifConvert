@@ -1,5 +1,7 @@
 package command.executor;
 
+import debug.Debug;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 import java.io.*;
@@ -54,6 +56,10 @@ public class CommandExecutor {
     public CommandExecuteResult execute(CommandParameters commandParameters, ObservableList<String> processStatus) {
         ensureExecutorAvailable();
 
+        if (processStatus == null) {
+            processStatus = FXCollections.observableArrayList();
+        }
+
         final long startTime = System.currentTimeMillis();
         try {
             List<String> command = new ArrayList<>();
@@ -70,6 +76,11 @@ public class CommandExecutor {
                 if (message == null) {
                     break;
                 }
+
+                if (Debug.ENABLE) {
+                    System.out.println(message);
+                }
+
                 processStatus.add(message);
             }
 

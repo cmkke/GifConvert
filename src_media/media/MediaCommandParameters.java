@@ -8,11 +8,27 @@ public abstract class MediaCommandParameters implements CommandParameters {
 
     private final File inputFile;
 
-    private final double duration;
+    private final double outputFrameRate;
 
-    public MediaCommandParameters(File inputFile, double duration) {
+    private final double outputScale;
+
+    private final double convertStartTime;
+
+    private final double convertDuration;
+
+    /**
+     * @param inputFile
+     * @param convertDuration  In seconds
+     * @param outputFrameRate
+     * @param outputScale
+     * @param convertStartTime In seconds
+     */
+    public MediaCommandParameters(File inputFile, double convertDuration, double outputFrameRate, double outputScale, double convertStartTime) {
         this.inputFile = inputFile;
-        this.duration = duration;
+        this.convertDuration = convertDuration;
+        this.outputFrameRate = outputFrameRate;
+        this.outputScale = outputScale;
+        this.convertStartTime = convertStartTime;
     }
 
     public abstract File getOutputFile();
@@ -21,8 +37,20 @@ public abstract class MediaCommandParameters implements CommandParameters {
         return inputFile;
     }
 
-    public double getDuration() {
-        return duration;
+    public double getConvertDuration() {
+        return convertDuration;
+    }
+
+    public double getOutputFrameRate() {
+        return outputFrameRate;
+    }
+
+    public double getOutputScale() {
+        return outputScale;
+    }
+
+    public double getConvertStartTime() {
+        return convertStartTime;
     }
 
 }

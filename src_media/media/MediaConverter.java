@@ -31,7 +31,8 @@ public class MediaConverter extends CommandExecutor {
         }
 
         updateProgressOnUIiThread(Double.NEGATIVE_INFINITY);
-        MediaInfo mediaInfo = new MediaInfo(execute(new MediaInfoParameters(convertInfo.getInputFile()), FXCollections.observableArrayList()).getMessages());
+
+        MediaInfo mediaInfo = new MediaInfo(execute(new MediaInfoParameters(convertInfo.getInputFile()), null).getMessages());
 
         ListChangeListener<String> changeListener = new ListChangeListener<String>() {
 
@@ -42,13 +43,8 @@ public class MediaConverter extends CommandExecutor {
                         for (String message : c.getAddedSubList()) {
                             Matcher matcher = CONVERT_PROGRESS_PATTERN.matcher(message);
                             if (matcher.matches()) {
-                                final long duration = Integer.parseInt(matcher.group("hour")) * 60 * 60 + Integer.parseInt(matcher.group("minute")) * 60 + Integer.parseInt(matcher.group("second"));
-                                if (convertInfo.getDuration() > 0) {
-                                    updateProgressOnUIiThread(1.0 * duration / convertInfo.getDuration());
-                                } else {
-                                    updateProgressOnUIiThread(1.0 * duration / mediaInfo.getDuration());
-                                }
-
+                                final double duration = Integer.parseInt(matcher.group("hour")) * 60 * 60 + Integer.parseInt(matcher.group("minute")) * 60 + Integer.parseInt(matcher.group("second"));
+                                updateProgressOnUIiThread(duration / convertInfo.getConvertDuration());
                             }
                         }
                     }

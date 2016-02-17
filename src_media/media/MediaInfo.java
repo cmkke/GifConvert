@@ -14,8 +14,6 @@ public class MediaInfo {
 
     private static final Pattern VIDEO_DURATION_PATTERN = Pattern.compile("Duration: (?<duration>\\S+)", Pattern.CASE_INSENSITIVE);
 
-    private final double duration;
-
     private int videoWidth;
 
     private int videoHeight;
@@ -26,13 +24,6 @@ public class MediaInfo {
 
     public MediaInfo(List<String> messages) {
         parseMediaInfo(messages);
-
-        Matcher matcher = DURATION_PATTERN.matcher(durationDescription);
-        if (matcher.matches()) {
-            duration = Integer.parseInt(matcher.group("hour")) * 60 * 60 + Integer.parseInt(matcher.group("minute")) * 60 + Integer.parseInt(matcher.group("second"));
-        } else {
-            duration = 0;
-        }
     }
 
     /**
@@ -41,7 +32,12 @@ public class MediaInfo {
      * @return
      */
     public double getDuration() {
-        return duration;
+        Matcher matcher = DURATION_PATTERN.matcher(durationDescription);
+        if (matcher.matches()) {
+            return Integer.parseInt(matcher.group("hour")) * 60 * 60 + Integer.parseInt(matcher.group("minute")) * 60 + Integer.parseInt(matcher.group("second"));
+        }
+
+        return 0;
     }
 
     @Override

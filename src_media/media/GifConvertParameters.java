@@ -9,18 +9,11 @@ public class GifConvertParameters extends MediaCommandParameters {
 
     public static final List<String> SUPPORT_VIDEO_FORMAT = Arrays.asList("*.mp4", "*.avi", "*.mkv", "*.mov", "*.flv");
 
-    private final double gifFrameRate;
+    private final boolean reverse;
 
-    private final double gifScale;
-
-    private final double gifStartTime;
-
-    public GifConvertParameters(File mediaFile, double gifFrameRate, double gifScale, double gifStartTime, double duration) {
-        super(mediaFile, duration);
-
-        this.gifFrameRate = gifFrameRate;
-        this.gifScale = gifScale;
-        this.gifStartTime = gifStartTime;
+    public GifConvertParameters(File mediaFile, double gifFrameRate, double gifScale, double convertStartTime, double convertDuration, boolean reverse) {
+        super(mediaFile, convertDuration, gifFrameRate, gifScale, convertStartTime);
+        this.reverse = reverse;
     }
 
     /**
@@ -31,15 +24,21 @@ public class GifConvertParameters extends MediaCommandParameters {
         List<String> command = new ArrayList<>();
         command.add("-y");
         command.add("-ss");
-        command.add("" + gifStartTime);
+        command.add("" + getConvertStartTime());
         command.add("-i");
         command.add(getInputFile().getAbsolutePath());
-        command.add("-t");
-        command.add("" + Math.min(30, getDuration()));
+        if (!reverse) {
+            command.add("-t");
+            command.add("" + Math.min(30, getConvertDuration()));
+        }
         command.add("-r");
-        command.add("" + gifFrameRate);
+        command.add("" + getOutputFrameRate());
         command.add("-vf");
-        command.add("scale=iw*" + gifScale + ":ih*" + gifScale);
+        command.add("scale=iw*" + getOutputScale() + ":ih*" + getOutputScale());
+        if (reverse) {
+            command.add("-vf");
+            command.add("trim=end=" + Math.min(30, getConvertDuration()) + ",reverse");
+        }
         command.add(getOutputFile().getAbsolutePath());
         return command;
     }

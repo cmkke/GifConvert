@@ -7,7 +7,7 @@ import java.util.List;
 public class MediaInfoParameters extends MediaCommandParameters {
 
     public MediaInfoParameters(File mediaFile) {
-        super(mediaFile, -1);
+        super(mediaFile, -1, -1, -1, -1);
     }
 
     @Override
