@@ -12,6 +12,7 @@ import javafx.scene.control.Slider;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.DragEvent;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
 import javafx.stage.FileChooser;
 import media.GifConvertParameters;
@@ -39,6 +40,10 @@ public class MainController implements Initializable {
 
     private static final Object MSG_HIDE_NOTIFICATION = new Object();
 
+    private final MediaConverter mediaConverter = new MediaConverter();
+
+    private final Image loadingImage = new Image(MainController.class.getResource("loading.gif").toExternalForm(), true);
+
     @FXML
     private ImageView gifPreviewView;
 
@@ -65,25 +70,12 @@ public class MainController implements Initializable {
 
     private ObjectProperty<File> mediaToBeConverted = new SimpleObjectProperty<>();
 
-    private final MediaConverter mediaConverter = new MediaConverter();
-
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         showLoadingImage();
 
         statusBar.progressProperty().bind(mediaConverter.convertProgressProperty());
 
-        final ChangeListener<Number> convertParameterChangeListener = new ChangeListener<Number>() {
-
-            @Override
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                reloadMediaConvert(3000);
-            }
-
-        };
-
-        gifConvertRange.lowValueProperty().addListener(convertParameterChangeListener);
-        gifConvertRange.highValueProperty().addListener(convertParameterChangeListener);
         gifConvertRange.setLabelFormatter(new StringConverterWithFormat<Number>() {
 
             @Override
@@ -97,9 +89,6 @@ public class MainController implements Initializable {
             }
 
         });
-
-        gifFrameRateView.valueProperty().addListener(convertParameterChangeListener);
-        gifScaleView.valueProperty().addListener(convertParameterChangeListener);
 
         reverseGifView.selectedProperty().addListener(new ChangeListener<Boolean>() {
 
@@ -138,6 +127,16 @@ public class MainController implements Initializable {
             }
 
         });
+    }
+
+    @FXML
+    private void onConvertParameterChanged(MouseEvent event) {
+        if (gifConvertRange.isHighValueChanging()
+                || gifConvertRange.isLowValueChanging()
+                || gifFrameRateView.isValueChanging()
+                || gifScaleView.isValueChanging()) {
+            reloadMediaConvert(3000);
+        }
     }
 
     @FXML
@@ -204,8 +203,6 @@ public class MainController implements Initializable {
     private void showLoadingImage() {
         gifPreviewView.setImage(loadingImage);
     }
-
-    private final Image loadingImage = new Image(MainController.class.getResource("loading.gif").toExternalForm(), true);
 
     private void showLoadingFinish(MediaConvertResult result) {
         Platform.runLater(new Runnable() {

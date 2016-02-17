@@ -27,18 +27,22 @@ public class GifConvertParameters extends MediaCommandParameters {
         command.add("" + getConvertStartTime());
         command.add("-i");
         command.add(getInputFile().getAbsolutePath());
+
         if (!reverse) {
             command.add("-t");
             command.add("" + Math.min(30, getConvertDuration()));
         }
+
         command.add("-r");
         command.add("" + getOutputFrameRate());
+
         command.add("-vf");
-        command.add("scale=iw*" + getOutputScale() + ":ih*" + getOutputScale());
+        String filter = "scale=iw*" + getOutputScale() + ":ih*" + getOutputScale();
         if (reverse) {
-            command.add("-vf");
-            command.add("trim=end=" + Math.min(30, getConvertDuration()) + ",reverse");
+            filter += ",trim=end=" + Math.min(30, getConvertDuration()) + ",reverse";
         }
+        command.add(filter);
+
         command.add(getOutputFile().getAbsolutePath());
         return command;
     }
