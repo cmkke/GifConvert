@@ -141,7 +141,7 @@ public class MainController implements Initializable {
             notificationPane.hide();
         }
 
-        if (mediaToBeConverted == null) {
+        if (mediaToBeConverted.get() == null) {
             return;
         }
 
