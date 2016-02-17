@@ -137,9 +137,7 @@ public class MainController implements Initializable {
     private void reloadMediaConvert(long delay) {
         Looper.removeMessage(MSG_CONVERT_MEDIA);
 
-        if (notificationPane.isShowing()) {
-            notificationPane.hide();
-        }
+        notificationPane.hide();
 
         if (mediaToBeConverted.get() == null) {
             return;
