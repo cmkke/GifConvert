@@ -25,6 +25,15 @@
                                                             shortcut="UP"/>
                                     </accelerator>
                                 </MenuItem>
+
+                                <MenuItem onAction="#onOpenSaveDirectory" text="打开输出文件夹">
+                                </MenuItem>
+                            </items>
+                        </Menu>
+                        <Menu text="编辑">
+                            <items>
+                                <CheckMenuItem text="反序输出" fx:id="reverseGifView">
+                                </CheckMenuItem>
                             </items>
                         </Menu>
                     </menus>
@@ -40,37 +49,24 @@
                     </center>
 
                     <right>
-                        <HiddenSidesPane triggerDistance="30">
-                            <top>
-                                <VBox>
-                                    <Label prefHeight="10"/>
-                                    <ToggleSwitch fx:id="reverseGifView" text="逆序："/>
-                                </VBox>
-                            </top>
+                        <VBox>
+                            <Label text="帧率："/>
+                            <Slider showTickMarks="true" fx:id="gifFrameRateView"
+                                    showTickLabels="true" min="1" max="25" minorTickCount="2" value="7"
+                                    majorTickUnit="5"/>
 
-                            <content>
-                                <VBox>
-                                    <Label prefHeight="60"/>
+                            <Label prefHeight="30"/>
 
-                                    <Label text="帧率："/>
-                                    <Slider showTickMarks="true" fx:id="gifFrameRateView"
-                                            showTickLabels="true" min="1" max="25" minorTickCount="2" value="7"
-                                            majorTickUnit="5"/>
-
-                                    <Label prefHeight="30"/>
-
-                                    <Label text="缩放："/>
-                                    <Slider showTickMarks="true"
-                                            fx:id="gifScaleView" value="1"
-                                            showTickLabels="true" min="0.1" max="1" minorTickCount="3"
-                                            majorTickUnit="0.3"/>
-                                </VBox>
-                            </content>
+                            <Label text="缩放："/>
+                            <Slider showTickMarks="true"
+                                    fx:id="gifScaleView" value="1"
+                                    showTickLabels="true" min="0.1" max="1" minorTickCount="3"
+                                    majorTickUnit="0.3"/>
 
                             <BorderPane.margin>
-                                <Insets left="10.0" right="10.0"/>
+                                <Insets left="10.0" right="10.0" top="50"/>
                             </BorderPane.margin>
-                        </HiddenSidesPane>
+                        </VBox>
                     </right>
 
                     <bottom>

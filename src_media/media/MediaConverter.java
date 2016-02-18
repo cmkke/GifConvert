@@ -6,6 +6,8 @@ import command.executor.CommandExecutor;
 import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -21,6 +23,8 @@ public class MediaConverter extends CommandExecutor {
 
     private DoubleProperty convertProgress = new SimpleDoubleProperty(Double.NaN);
 
+    private StringProperty mediaInfoDescription = new SimpleStringProperty();
+
     public MediaConverter() {
         super(MediaConverter.class, CONVERTER_NAME);
     }
@@ -32,11 +36,12 @@ public class MediaConverter extends CommandExecutor {
 
         updateProgressOnUIiThread(Double.NEGATIVE_INFINITY);
 
-        CommandExecuteResult mediaInfoExecuteResult = execute(new MediaInfoParameters(convertInfo.getInputFile()), null);
+        CommandExecuteResult mediaInfoExecuteResult = execute(new MediaInfoParameters(convertInfo.getInputFile()));
         if (mediaInfoExecuteResult.isCanceled()) {
             return new MediaConvertResult(null, null, mediaInfoExecuteResult);
         }
         MediaInfo mediaInfo = new MediaInfo(mediaInfoExecuteResult.getMessages());
+        updateMediaInfoOnUiThread(mediaInfo);
 
         ListChangeListener<String> changeListener = new ListChangeListener<String>() {
 
@@ -70,12 +75,27 @@ public class MediaConverter extends CommandExecutor {
         return convertProgress;
     }
 
+    public StringProperty mediaInfoDescriptionProperty() {
+        return mediaInfoDescription;
+    }
+
     private void updateProgressOnUIiThread(double progress) {
         Platform.runLater(new Runnable() {
 
             @Override
             public void run() {
                 convertProgress.set(progress);
+            }
+
+        });
+    }
+
+    private void updateMediaInfoOnUiThread(MediaInfo mediaInfo) {
+        Platform.runLater(new Runnable() {
+
+            @Override
+            public void run() {
+                mediaInfoDescription.set(mediaInfo.toString());
             }
 
         });

@@ -6,6 +6,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.image.Image;
@@ -20,13 +21,13 @@ import media.MediaInfo;
 import org.controlsfx.control.NotificationPane;
 import org.controlsfx.control.RangeSlider;
 import org.controlsfx.control.StatusBar;
-import org.controlsfx.control.ToggleSwitch;
 import org.controlsfx.control.spreadsheet.StringConverterWithFormat;
 import ui.SmartFileChooser;
 import util.Looper;
 import util.MessageTask;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
@@ -51,7 +52,7 @@ public class MainController implements Initializable {
     private RangeSlider gifConvertRange;
 
     @FXML
-    private ToggleSwitch reverseGifView;
+    private CheckMenuItem reverseGifView;
 
     @FXML
     private Label mediaInfoView;
@@ -69,6 +70,7 @@ public class MainController implements Initializable {
         showLoadingImage();
 
         statusBar.progressProperty().bind(mediaConverter.convertProgressProperty());
+        mediaInfoView.textProperty().bind(mediaConverter.mediaInfoDescriptionProperty());
 
         gifConvertRange.setLabelFormatter(new StringConverterWithFormat<Number>() {
 
@@ -84,19 +86,21 @@ public class MainController implements Initializable {
 
         });
 
-        final ChangeListener<Number> convertParameterChangeListener = new ChangeListener<Number>() {
+        {
+            final ChangeListener<Number> convertParameterChangeListener = new ChangeListener<Number>() {
 
-            @Override
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                reloadMediaConvert(3000);
-            }
+                @Override
+                public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                    reloadMediaConvert(1000);
+                }
 
-        };
+            };
 
-        gifConvertRange.lowValueProperty().addListener(convertParameterChangeListener);
-        gifConvertRange.highValueProperty().addListener(convertParameterChangeListener);
-        gifScaleView.valueProperty().addListener(convertParameterChangeListener);
-        gifFrameRateView.valueProperty().addListener(convertParameterChangeListener);
+            gifConvertRange.lowValueProperty().addListener(convertParameterChangeListener);
+            gifConvertRange.highValueProperty().addListener(convertParameterChangeListener);
+            gifScaleView.valueProperty().addListener(convertParameterChangeListener);
+            gifFrameRateView.valueProperty().addListener(convertParameterChangeListener);
+        }
 
         reverseGifView.selectedProperty().addListener(new ChangeListener<Boolean>() {
 
@@ -146,7 +150,24 @@ public class MainController implements Initializable {
         mediaToBeConverted.set(fileChooser.showOpenDialog(gifPreviewView.getScene().getWindow()));
     }
 
-    private void initRangeSlide(){
+    @FXML
+    private void onOpenSaveDirectory(ActionEvent event) {
+        if (mediaToBeConverted.get() == null) {
+            return;
+        }
+
+        if (!mediaToBeConverted.get().exists()) {
+            return;
+        }
+
+        try {
+            java.awt.Desktop.getDesktop().open(mediaToBeConverted.get().getParentFile());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void initRangeSlide() {
         gifConvertRange.setVisible(false);
         // make sure low/high value will not reset by min/max
         gifConvertRange.setMin(0);
@@ -198,7 +219,6 @@ public class MainController implements Initializable {
             e.printStackTrace();
         }
 
-        mediaInfoView.setText(result.getMediaInfo().toString());
         reloadRangeSlide(result.getMediaInfo());
 
         if (result.isCanceled()) {

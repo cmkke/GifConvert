@@ -46,7 +46,6 @@ public class CommandExecutor {
 
     private void ensureExecutorAvailable() {
         if (executorFile.exists()) {
-            System.out.println("executor exist");
             return;
         }
 
