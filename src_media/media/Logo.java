@@ -16,7 +16,7 @@ public class Logo {
     }
 
     public File create() {
-        File logoFile = new File(System.getProperty("java.io.tmpdir"), "logo.png");
+        File logoFile = new File(System.getProperty("java.io.tmpdir"), "ffmpeg-logo.png");
         Font font = new Font("微软雅黑", Font.PLAIN, 15);
         FontMetrics fontMetrics = Toolkit.getDefaultToolkit().getFontMetrics(font);
 
