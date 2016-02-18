@@ -13,6 +13,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.TransferMode;
+import javafx.scene.layout.Pane;
 import javafx.stage.FileChooser;
 import media.GifConvertParameters;
 import media.MediaConvertResult;
@@ -37,6 +38,10 @@ import java.util.ResourceBundle;
 
 public class MainController implements Initializable {
 
+    private static final Object MSG_HIDE_NOTIFICATION = new Object();
+
+    private static final Object MSG_CONVERT_MEDIA = new Object();
+
     private final MediaConverter mediaConverter = new MediaConverter();
 
     private final Image loadingImage = new Image(MainController.class.getResource("loading.gif").toExternalForm(), true);
@@ -52,6 +57,15 @@ public class MainController implements Initializable {
 
     @FXML
     private RangeSlider gifConvertRange;
+
+    @FXML
+    private Label gifStartTimeView;
+
+    @FXML
+    private Label gifEndTimeView;
+
+    @FXML
+    private Pane gifConvertRangePane;
 
     @FXML
     private CheckMenuItem reverseGifView;
@@ -76,12 +90,14 @@ public class MainController implements Initializable {
 
         statusBar.progressProperty().bind(mediaConverter.convertProgressProperty());
         mediaInfoView.textProperty().bind(mediaConverter.mediaInfoDescriptionProperty());
+        gifStartTimeView.textProperty().bind(new DurationStringFormatter(gifConvertRange.lowValueProperty()));
+        gifEndTimeView.textProperty().bind(new DurationStringFormatter(gifConvertRange.highValueProperty()));
 
         gifConvertRange.setLabelFormatter(new StringConverterWithFormat<Number>() {
 
             @Override
             public String toString(Number object) {
-                return String.format("%02d:%02d", object.intValue() / 60, object.intValue() % 60);
+                return DurationStringFormatter.formatMediaDuration(object.intValue());
             }
 
             @Override
@@ -150,6 +166,7 @@ public class MainController implements Initializable {
             }
 
         });
+
     }
 
     @FXML
@@ -178,7 +195,7 @@ public class MainController implements Initializable {
     }
 
     private void initRangeSlide() {
-        gifConvertRange.setVisible(false);
+        gifConvertRangePane.setVisible(false);
         // make sure low/high value will not reset by min/max
         gifConvertRange.setMin(0);
         gifConvertRange.setMax(60);
@@ -187,7 +204,8 @@ public class MainController implements Initializable {
     }
 
     private void reloadRangeSlide(MediaInfo info) {
-        gifConvertRange.setVisible(true);
+        gifConvertRangePane.setVisible(true);
+
         if (info.getDuration() < 60) {
             gifConvertRange.setMajorTickUnit(5);
         } else {
@@ -246,8 +264,6 @@ public class MainController implements Initializable {
         Looper.postMessage(new HideNotificationTask(3000));
     }
 
-    private static final Object MSG_HIDE_NOTIFICATION = new Object();
-
     private class HideNotificationTask extends MessageTask<Void> {
 
         public HideNotificationTask(long delay) {
@@ -273,8 +289,6 @@ public class MainController implements Initializable {
         }
 
     }
-
-    private static final Object MSG_CONVERT_MEDIA = new Object();
 
     private class ConvertMediaTask extends MessageTask<MediaConvertResult> {
 

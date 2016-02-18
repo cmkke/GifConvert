@@ -5,7 +5,9 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.input.KeyCodeCombination?>
 <?import javafx.scene.layout.*?>
-<?import org.controlsfx.control.*?>
+<?import org.controlsfx.control.NotificationPane?>
+<?import org.controlsfx.control.RangeSlider?>
+<?import org.controlsfx.control.StatusBar?>
 <NotificationPane xmlns:fx="http://javafx.com/fxml/1" prefHeight="600.0" prefWidth="900.0"
                   xmlns="http://javafx.com/javafx/8"
                   fx:controller="MainController" fx:id="notificationPane" showFromTop="false">
@@ -72,14 +74,30 @@
                     </right>
 
                     <bottom>
-                        <RangeSlider fx:id="gifConvertRange" showTickMarks="true" min="0" max="60" visible="false"
-                                     minorTickCount="5"
-                                     showTickLabels="true" lowValue="0" highValue="10"
-                                     BorderPane.alignment="CENTER">
+                        <BorderPane BorderPane.alignment="CENTER" fx:id="gifConvertRangePane" visible="false">
+                            <center>
+                                <RangeSlider fx:id="gifConvertRange" showTickMarks="true" min="0" max="60"
+                                             minorTickCount="5"
+                                             showTickLabels="true" lowValue="0" highValue="10"
+                                             BorderPane.alignment="CENTER">
+                                    <BorderPane.margin>
+                                        <Insets left="10.0" right="10.0"/>
+                                    </BorderPane.margin>
+                                </RangeSlider>
+                            </center>
+
+                            <left>
+                                <Label fx:id="gifStartTimeView"/>
+                            </left>
+
+                            <right>
+                                <Label fx:id="gifEndTimeView"/>
+                            </right>
+
                             <BorderPane.margin>
-                                <Insets bottom="10.0" left="80.0" right="80.0" top="10.0"/>
+                                <Insets bottom="10.0" left="60.0" right="60.0" top="10.0"/>
                             </BorderPane.margin>
-                        </RangeSlider>
+                        </BorderPane>
                     </bottom>
                 </BorderPane>
             </center>
