@@ -1,4 +1,3 @@
-import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
@@ -12,7 +11,6 @@ import javafx.scene.control.Slider;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.DragEvent;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
 import javafx.stage.FileChooser;
 import media.GifConvertParameters;
@@ -35,10 +33,6 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 public class MainController implements Initializable {
-
-    private static final Object MSG_CONVERT_MEDIA = new Object();
-
-    private static final Object MSG_HIDE_NOTIFICATION = new Object();
 
     private final MediaConverter mediaConverter = new MediaConverter();
 
@@ -90,6 +84,20 @@ public class MainController implements Initializable {
 
         });
 
+        final ChangeListener<Number> convertParameterChangeListener = new ChangeListener<Number>() {
+
+            @Override
+            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                reloadMediaConvert(3000);
+            }
+
+        };
+
+        gifConvertRange.lowValueProperty().addListener(convertParameterChangeListener);
+        gifConvertRange.highValueProperty().addListener(convertParameterChangeListener);
+        gifScaleView.valueProperty().addListener(convertParameterChangeListener);
+        gifFrameRateView.valueProperty().addListener(convertParameterChangeListener);
+
         reverseGifView.selectedProperty().addListener(new ChangeListener<Boolean>() {
 
             @Override
@@ -103,6 +111,7 @@ public class MainController implements Initializable {
 
             @Override
             public void changed(ObservableValue<? extends File> observable, File oldValue, File newValue) {
+                initRangeSlide();
                 reloadMediaConvert(0);
             }
 
@@ -130,21 +139,20 @@ public class MainController implements Initializable {
     }
 
     @FXML
-    private void onConvertParameterChanged(MouseEvent event) {
-        if (gifConvertRange.isHighValueChanging()
-                || gifConvertRange.isLowValueChanging()
-                || gifFrameRateView.isValueChanging()
-                || gifScaleView.isValueChanging()) {
-            reloadMediaConvert(3000);
-        }
-    }
-
-    @FXML
     private void onChooseVideo(ActionEvent event) {
         SmartFileChooser fileChooser = new SmartFileChooser();
         fileChooser.addExtensionFilters(new FileChooser.ExtensionFilter("视频文件", GifConvertParameters.SUPPORT_VIDEO_FORMAT));
         fileChooser.addExtensionFilters(new FileChooser.ExtensionFilter("所有文件", "*.*"));
         mediaToBeConverted.set(fileChooser.showOpenDialog(gifPreviewView.getScene().getWindow()));
+    }
+
+    private void initRangeSlide(){
+        gifConvertRange.setVisible(false);
+        // make sure low/high value will not reset by min/max
+        gifConvertRange.setMin(0);
+        gifConvertRange.setMax(60);
+        gifConvertRange.setLowValue(0);
+        gifConvertRange.setHighValue(10);
     }
 
     private void reloadRangeSlide(MediaInfo info) {
@@ -176,28 +184,7 @@ public class MainController implements Initializable {
             return;
         }
 
-        Looper.postMessage(new MessageTask(new Runnable() {
-
-            @Override
-            public void run() {
-                showLoadingImage();
-            }
-
-        }, new Runnable() {
-
-            @Override
-            public void run() {
-                MediaConvertResult result = mediaConverter.convert(
-                        new GifConvertParameters(mediaToBeConverted.get(),
-                                gifFrameRateView.getValue(),
-                                gifScaleView.getValue(),
-                                gifConvertRange.getLowValue(),
-                                gifConvertRange.getHighValue() - gifConvertRange.getLowValue(),
-                                reverseGifView.isSelected()));
-                showLoadingFinish(result);
-            }
-
-        }, MSG_CONVERT_MEDIA, delay));
+        Looper.postMessage(new ConvertMediaTask(delay));
     }
 
     private void showLoadingImage() {
@@ -205,41 +192,92 @@ public class MainController implements Initializable {
     }
 
     private void showLoadingFinish(MediaConvertResult result) {
-        Platform.runLater(new Runnable() {
+        try {
+            gifPreviewView.setImage(new Image(result.getOutputFile().toURI().toURL().toExternalForm(), true));
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
 
-            @Override
-            public void run() {
-                try {
-                    gifPreviewView.setImage(new Image(result.getOutputFile().toURI().toURL().toExternalForm(), true));
-                } catch (MalformedURLException e) {
-                    e.printStackTrace();
-                }
+        mediaInfoView.setText(result.getMediaInfo().toString());
+        reloadRangeSlide(result.getMediaInfo());
 
-                mediaInfoView.setText(result.getMediaInfo().toString());
-                reloadRangeSlide(result.getMediaInfo());
-
-                if (result.isSuccess()) {
-                    showNotificationForAWhile("转换时间：" + result.getCostTimeString() + "，转换后大小：" + result.getFileSize(), 3000);
-                } else {
-                    showNotificationForAWhile("转换失败！！是否选择了有效的视频文件？", 3000);
-                }
-            }
-
-        });
+        if (result.isCanceled()) {
+        } else if (result.isSuccess()) {
+            showNotificationForAWhile("转换时间：" + result.getCostTimeString() + "，转换后大小：" + result.getFileSize());
+        } else {
+            showNotificationForAWhile("转换失败！！是否选择了有效的视频文件？");
+        }
     }
 
-    private void showNotificationForAWhile(String message, long duration) {
+    private void showNotificationForAWhile(String message) {
         notificationPane.show(message);
 
         Looper.removeMessage(MSG_HIDE_NOTIFICATION);
-        Looper.postMessage(new MessageTask(new Runnable() {
+        Looper.postMessage(new HideNotificationTask(3000));
+    }
 
-            @Override
-            public void run() {
-                notificationPane.hide();
-            }
+    private static final Object MSG_HIDE_NOTIFICATION = new Object();
 
-        }, null, MSG_HIDE_NOTIFICATION, 3000));
+    private class HideNotificationTask extends MessageTask<Void> {
+
+        public HideNotificationTask(long delay) {
+            super(MSG_HIDE_NOTIFICATION, delay);
+        }
+
+        @Override
+        public void preTaskOnUi() {
+            notificationPane.hide();
+        }
+
+        @Override
+        public Void runTask() {
+            return null;
+        }
+
+        @Override
+        public void postTaskOnUi(Void result) {
+        }
+
+        @Override
+        public void cancel() {
+        }
+
+    }
+
+    private static final Object MSG_CONVERT_MEDIA = new Object();
+
+    private class ConvertMediaTask extends MessageTask<MediaConvertResult> {
+
+        public ConvertMediaTask(long delay) {
+            super(MSG_CONVERT_MEDIA, delay);
+        }
+
+        @Override
+        public void preTaskOnUi() {
+            showLoadingImage();
+        }
+
+        @Override
+        public MediaConvertResult runTask() {
+            return mediaConverter.convert(
+                    new GifConvertParameters(mediaToBeConverted.get(),
+                            gifFrameRateView.getValue(),
+                            gifScaleView.getValue(),
+                            gifConvertRange.getLowValue(),
+                            gifConvertRange.getHighValue() - gifConvertRange.getLowValue(),
+                            reverseGifView.isSelected()));
+        }
+
+        @Override
+        public void postTaskOnUi(MediaConvertResult result) {
+            showLoadingFinish(result);
+        }
+
+        @Override
+        public void cancel() {
+            mediaConverter.cancel();
+        }
+
     }
 
 }

@@ -4,7 +4,6 @@ import command.executor.CommandExecuteResult;
 
 import java.io.File;
 import java.text.NumberFormat;
-import java.util.List;
 
 public class MediaConvertResult extends CommandExecuteResult {
 
@@ -12,8 +11,8 @@ public class MediaConvertResult extends CommandExecuteResult {
 
     private final MediaInfo mediaInfo;
 
-    public MediaConvertResult(MediaInfo mediaInfo, File outFile, boolean success, long costTime, List<String> message) {
-        super(success, costTime, message);
+    public MediaConvertResult(MediaInfo mediaInfo, File outFile, CommandExecuteResult commandExecuteResult) {
+        super(commandExecuteResult);
         this.mediaInfo = mediaInfo;
         this.outputFile = outFile;
     }

@@ -9,7 +9,8 @@ public class Looper {
 
     private final static ThreadLocal<Looper> LOOPER_THREAD_LOCAL = new ThreadLocal<>();
     private final Object lock = new Object();
-    private final List<MessageTask> messageTasks = new ArrayList<>();
+    private final List<Message> messages = new ArrayList<>();
+    private Message currentMessage;
 
     private Looper() {
     }
@@ -31,25 +32,25 @@ public class Looper {
             public void run() {
                 try {
                     while (true) {
-                        MessageTask messageTask;
                         synchronized (looper.lock) {
 
-                            if (looper.messageTasks.isEmpty()) {
+                            if (looper.messages.isEmpty()) {
                                 looper.lock.wait();
                                 continue;
                             }
 
-                            final long waitTime = looper.messageTasks.get(0).getTimeRunAt() - System.currentTimeMillis();
+                            final long waitTime = looper.messages.get(0).getTimeRunAt() - System.currentTimeMillis();
                             if (waitTime > 0) {
                                 looper.lock.wait(waitTime);
                                 continue;
                             }
 
 
-                            messageTask = looper.messageTasks.remove(0);
+                            looper.currentMessage = looper.messages.remove(0);
                         }
 
-                        messageTask.run();
+                        looper.currentMessage.run();
+                        looper.currentMessage = null;
                     }
                 } catch (InterruptedException e) {
                     e.printStackTrace();
@@ -61,11 +62,11 @@ public class Looper {
         thread.start();
     }
 
-    public static void postMessage(MessageTask messageTask) {
+    public static void postMessage(Message message) {
         final Looper looper = myLoop();
         synchronized (looper.lock) {
-            looper.messageTasks.add(messageTask);
-            Collections.sort(looper.messageTasks);
+            looper.messages.add(message);
+            Collections.sort(looper.messages);
             looper.lock.notifyAll();
         }
     }
@@ -73,7 +74,7 @@ public class Looper {
     public static void removeMessage(Object id) {
         final Looper looper = myLoop();
         synchronized (looper.lock) {
-            Iterator<MessageTask> iterator = looper.messageTasks.iterator();
+            Iterator<Message> iterator = looper.messages.iterator();
             while (iterator.hasNext()) {
                 if (iterator.next().getId() == id) {
                     iterator.remove();
@@ -82,12 +83,16 @@ public class Looper {
 
             looper.lock.notifyAll();
         }
+
+        if (looper.currentMessage != null) {
+            looper.currentMessage.cancel();
+        }
     }
 
     public static void removeAllMessage() {
         final Looper looper = myLoop();
         synchronized (looper.lock) {
-            looper.messageTasks.clear();
+            looper.messages.clear();
             looper.lock.notifyAll();
         }
     }

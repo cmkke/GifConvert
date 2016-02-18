@@ -1,49 +1,47 @@
 package util;
 
-import com.sun.istack.internal.NotNull;
 import debug.Debug;
 import javafx.application.Platform;
 
-public class MessageTask implements Comparable<MessageTask> {
+public abstract class MessageTask<R> extends Message {
 
-    private final Runnable preUiTask;
-    private final Runnable task;
-    private final Long timeRunAt;
-    private final Object id;
     private final Exception trace = new Exception();
 
-    public MessageTask(Runnable preUiTask, Runnable task, Object id, long delay) {
-        this.preUiTask = preUiTask;
-        this.task = task;
-        this.id = id;
-        this.timeRunAt = delay + System.currentTimeMillis();
-    }
+    public abstract void preTaskOnUi();
 
+    public abstract R runTask();
+
+    public abstract void postTaskOnUi(R result);
+
+    @Override
     public void run() {
         if (Debug.ENABLE) {
             trace.printStackTrace();
         }
 
-        if (preUiTask != null) {
-            Platform.runLater(preUiTask);
-        }
+        Platform.runLater(new Runnable() {
 
-        if (task != null) {
-            task.run();
-        }
+            @Override
+            public void run() {
+                preTaskOnUi();
+            }
+
+        });
+
+        R result = runTask();
+
+        Platform.runLater(new Runnable() {
+
+            @Override
+            public void run() {
+                postTaskOnUi(result);
+            }
+
+        });
     }
 
-    public long getTimeRunAt() {
-        return timeRunAt;
-    }
-
-    public Object getId() {
-        return id;
-    }
-
-    @Override
-    public int compareTo(@NotNull MessageTask o) {
-        return timeRunAt.compareTo(o.timeRunAt);
+    public MessageTask(Object id, long delay) {
+        super(id, delay);
     }
 
 }

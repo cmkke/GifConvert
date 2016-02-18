@@ -53,8 +53,18 @@ public class CommandExecutor {
         copyExecutorToTempDirectory();
     }
 
+    private Process currentProcess;
+
+    public CommandExecuteResult execute(CommandParameters commandParameters) {
+        return execute(commandParameters, null);
+    }
+
     public CommandExecuteResult execute(CommandParameters commandParameters, ObservableList<String> processStatus) {
         ensureExecutorAvailable();
+
+        if (currentProcess != null) {
+            throw new RuntimeException("cannot execute two process together");
+        }
 
         if (processStatus == null) {
             processStatus = FXCollections.observableArrayList();
@@ -68,9 +78,10 @@ public class CommandExecutor {
             ProcessBuilder processBuilder = new ProcessBuilder(command);
 //            processBuilder.directory(executorFile.getParentFile());
             processBuilder.redirectErrorStream(true);
-            Process converterProcess = processBuilder.start();
+            currentProcess = processBuilder.start();
+            isCanceled = false;
 
-            BufferedReader reader = new BufferedReader(new InputStreamReader(converterProcess.getInputStream()));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(currentProcess.getInputStream()));
             while (true) {
                 String message = reader.readLine();
                 if (message == null) {
@@ -84,14 +95,30 @@ public class CommandExecutor {
                 processStatus.add(message);
             }
 
-            return new CommandExecuteResult(converterProcess.waitFor() == 0,
+            return new CommandExecuteResult(currentProcess.waitFor() == 0,
+                    isCanceled,
                     System.currentTimeMillis() - startTime,
                     Arrays.asList(processStatus.toArray(new String[processStatus.size()])));
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
+        } finally {
+            currentProcess = null;
         }
 
         return null;
     }
+
+    public void cancel() {
+        if (currentProcess != null) {
+            currentProcess.destroy();
+            isCanceled = true;
+        }
+    }
+
+    public boolean isCanceled() {
+        return isCanceled;
+    }
+
+    private boolean isCanceled;
 
 }

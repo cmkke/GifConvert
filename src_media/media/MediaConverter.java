@@ -32,7 +32,11 @@ public class MediaConverter extends CommandExecutor {
 
         updateProgressOnUIiThread(Double.NEGATIVE_INFINITY);
 
-        MediaInfo mediaInfo = new MediaInfo(execute(new MediaInfoParameters(convertInfo.getInputFile()), null).getMessages());
+        CommandExecuteResult mediaInfoExecuteResult = execute(new MediaInfoParameters(convertInfo.getInputFile()), null);
+        if (mediaInfoExecuteResult.isCanceled()) {
+            return new MediaConvertResult(null, null, mediaInfoExecuteResult);
+        }
+        MediaInfo mediaInfo = new MediaInfo(mediaInfoExecuteResult.getMessages());
 
         ListChangeListener<String> changeListener = new ListChangeListener<String>() {
 
@@ -59,12 +63,7 @@ public class MediaConverter extends CommandExecutor {
         processStatus.removeListener(changeListener);
         updateProgressOnUIiThread(Double.NaN);
 
-        return new MediaConvertResult(
-                mediaInfo,
-                convertInfo.getOutputFile(),
-                convertResult.isSuccess(),
-                convertResult.getCostTime(),
-                convertResult.getMessages());
+        return new MediaConvertResult(mediaInfo, convertInfo.getOutputFile(), convertResult);
     }
 
     public DoubleProperty convertProgressProperty() {
