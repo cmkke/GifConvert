@@ -34,6 +34,8 @@
                             <items>
                                 <CheckMenuItem text="反序输出" fx:id="reverseGifView">
                                 </CheckMenuItem>
+                                <CheckMenuItem text="添加时间水印" fx:id="addLogoView">
+                                </CheckMenuItem>
                             </items>
                         </Menu>
                     </menus>

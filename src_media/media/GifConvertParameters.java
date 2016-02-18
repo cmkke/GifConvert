@@ -11,9 +11,21 @@ public class GifConvertParameters extends MediaCommandParameters {
 
     private final boolean reverse;
 
-    public GifConvertParameters(File mediaFile, double gifFrameRate, double gifScale, double convertStartTime, double convertDuration, boolean reverse) {
+    private final String logo;
+
+    /**
+     * @param mediaFile
+     * @param gifFrameRate
+     * @param gifScale         0~1
+     * @param convertStartTime In seconds
+     * @param convertDuration  In seconds
+     * @param reverse
+     * @param logo
+     */
+    public GifConvertParameters(File mediaFile, double gifFrameRate, double gifScale, double convertStartTime, double convertDuration, boolean reverse, String logo) {
         super(mediaFile, convertDuration, gifFrameRate, gifScale, convertStartTime);
         this.reverse = reverse;
+        this.logo = logo;
     }
 
     /**
@@ -27,6 +39,8 @@ public class GifConvertParameters extends MediaCommandParameters {
         command.add("" + getConvertStartTime());
         command.add("-i");
         command.add(getInputFile().getAbsolutePath());
+        command.add("-i");
+        command.add(new Logo(logo).create().getAbsolutePath());
 
         if (!reverse) {
             command.add("-t");
@@ -36,11 +50,12 @@ public class GifConvertParameters extends MediaCommandParameters {
         command.add("-r");
         command.add("" + getOutputFrameRate());
 
-        command.add("-vf");
+        command.add("-filter_complex");
         String filter = "scale=iw*" + getOutputScale() + ":ih*" + getOutputScale();
         if (reverse) {
             filter += ",trim=end=" + Math.min(30, getConvertDuration()) + ",reverse";
         }
+        filter += ",overlay=x=W-w-10:y=H-h-10";
         command.add(filter);
 
         command.add(getOutputFile().getAbsolutePath());

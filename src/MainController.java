@@ -14,10 +14,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.TransferMode;
 import javafx.stage.FileChooser;
-import media.GifConvertParameters;
-import media.MediaConvertResult;
-import media.MediaConverter;
-import media.MediaInfo;
+import media.*;
 import org.controlsfx.control.NotificationPane;
 import org.controlsfx.control.RangeSlider;
 import org.controlsfx.control.StatusBar;
@@ -30,6 +27,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -53,6 +52,9 @@ public class MainController implements Initializable {
 
     @FXML
     private CheckMenuItem reverseGifView;
+
+    @FXML
+    private CheckMenuItem addLogoView;
 
     @FXML
     private Label mediaInfoView;
@@ -102,14 +104,19 @@ public class MainController implements Initializable {
             gifFrameRateView.valueProperty().addListener(convertParameterChangeListener);
         }
 
-        reverseGifView.selectedProperty().addListener(new ChangeListener<Boolean>() {
+        {
+            final ChangeListener<Boolean> convertParameterChangeListener = new ChangeListener<Boolean>() {
 
-            @Override
-            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-                reloadMediaConvert(0);
-            }
+                @Override
+                public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                    reloadMediaConvert(0);
+                }
 
-        });
+            };
+
+            reverseGifView.selectedProperty().addListener(convertParameterChangeListener);
+            addLogoView.selectedProperty().addListener(convertParameterChangeListener);
+        }
 
         mediaToBeConverted.addListener(new ChangeListener<File>() {
 
@@ -279,13 +286,15 @@ public class MainController implements Initializable {
 
         @Override
         public MediaConvertResult runTask() {
+            String logo = addLogoView.isSelected() ? new SimpleDateFormat().format(new Date()) : " ";
             return mediaConverter.convert(
                     new GifConvertParameters(mediaToBeConverted.get(),
                             gifFrameRateView.getValue(),
                             gifScaleView.getValue(),
                             gifConvertRange.getLowValue(),
                             gifConvertRange.getHighValue() - gifConvertRange.getLowValue(),
-                            reverseGifView.isSelected()));
+                            reverseGifView.isSelected(),
+                            logo));
         }
 
         @Override
