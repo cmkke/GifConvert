@@ -17,13 +17,13 @@ public class Logo {
 
     public File create() {
         File logoFile = new File(System.getProperty("java.io.tmpdir"), "logo.png");
-        Font font = new Font("SansSerif", Font.PLAIN, 15);
+        Font font = new Font("微软雅黑", Font.PLAIN, 15);
         FontMetrics fontMetrics = Toolkit.getDefaultToolkit().getFontMetrics(font);
 
         BufferedImage bufferedImage = new BufferedImage(fontMetrics.stringWidth(logo), fontMetrics.getAscent() + fontMetrics.getDescent(), BufferedImage.TYPE_INT_ARGB);
         Graphics graphics = bufferedImage.getGraphics();
         graphics.setFont(font);
-        graphics.setColor(Color.RED);
+        graphics.setColor(Color.WHITE);
         graphics.drawString(logo, 0, fontMetrics.getAscent());
         try {
             ImageIO.write(bufferedImage, "png", logoFile);
