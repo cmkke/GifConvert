@@ -4,10 +4,7 @@ import com.sun.istack.internal.NotNull;
 import command.executor.CommandExecuteResult;
 import command.executor.CommandExecutor;
 import javafx.application.Platform;
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.SimpleDoubleProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
+import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -23,7 +20,7 @@ public class MediaConverter extends CommandExecutor {
 
     private DoubleProperty convertProgress = new SimpleDoubleProperty(Double.NaN);
 
-    private StringProperty mediaInfoDescription = new SimpleStringProperty();
+    private ObjectProperty<MediaInfo> mediaInfoProperty = new SimpleObjectProperty<>(MediaInfo.INVALID);
 
     public MediaConverter() {
         super(MediaConverter.class, CONVERTER_NAME);
@@ -75,8 +72,8 @@ public class MediaConverter extends CommandExecutor {
         return convertProgress;
     }
 
-    public StringProperty mediaInfoDescriptionProperty() {
-        return mediaInfoDescription;
+    public ObjectProperty<MediaInfo> mediaInfoPropertyProperty() {
+        return mediaInfoProperty;
     }
 
     private void updateProgressOnUIiThread(double progress) {
@@ -95,7 +92,7 @@ public class MediaConverter extends CommandExecutor {
 
             @Override
             public void run() {
-                mediaInfoDescription.set(mediaInfo.toString());
+                mediaInfoProperty.set(mediaInfo);
             }
 
         });

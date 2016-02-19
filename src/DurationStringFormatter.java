@@ -1,8 +1,5 @@
 import com.sun.javafx.binding.StringFormatter;
 import javafx.beans.property.DoubleProperty;
-import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 
 public class DurationStringFormatter extends StringFormatter {
 
@@ -25,12 +22,6 @@ public class DurationStringFormatter extends StringFormatter {
     @Override
     protected String computeValue() {
         return formatMediaDuration(durationProperty.intValue());
-    }
-
-    @Override
-    public ObservableList<ObservableValue<?>> getDependencies() {
-        return FXCollections.unmodifiableObservableList(FXCollections
-                .observableArrayList(durationProperty));
     }
 
 }

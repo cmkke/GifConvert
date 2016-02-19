@@ -89,7 +89,7 @@ public class MainController implements Initializable {
         showLoadingImage();
 
         statusBar.progressProperty().bind(mediaConverter.convertProgressProperty());
-        mediaInfoView.textProperty().bind(mediaConverter.mediaInfoDescriptionProperty());
+        mediaInfoView.textProperty().bind(mediaConverter.mediaInfoPropertyProperty().asString());
         gifStartTimeView.textProperty().bind(new DurationStringFormatter(gifConvertRange.lowValueProperty()));
         gifEndTimeView.textProperty().bind(new DurationStringFormatter(gifConvertRange.highValueProperty()));
 

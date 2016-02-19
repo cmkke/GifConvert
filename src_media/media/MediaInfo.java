@@ -1,5 +1,7 @@
 package media;
 
+import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -14,17 +16,61 @@ public class MediaInfo {
 
     private static final Pattern VIDEO_DURATION_PATTERN = Pattern.compile("Duration: (?<duration>\\S+)", Pattern.CASE_INSENSITIVE);
 
-    private int videoWidth;
+    private final Point videoSize;
 
-    private int videoHeight;
+    private final double frameRate;
 
-    private double frameRate;
+    private final String durationDescription;
 
-    private String durationDescription;
-
+    /**
+     * @param messages Output of "ffmpeg -i file"
+     */
     public MediaInfo(List<String> messages) {
-        parseMediaInfo(messages);
+        videoSize = parseVideoSize(messages);
+        frameRate = parseFrameRate(messages);
+        durationDescription = parseDuration(messages);
     }
+
+    private Point parseVideoSize(List<String> messages) {
+        for (String message : messages) {
+            for (String token : message.split(",")) {
+                Matcher videoSizeMatcher = VIDEO_SIZE_PATTERN.matcher(token);
+                if (videoSizeMatcher.find()) {
+                    return new Point(Integer.parseInt(videoSizeMatcher.group("width")), Integer.parseInt(videoSizeMatcher.group("height")));
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private double parseFrameRate(List<String> messages) {
+        for (String message : messages) {
+            for (String token : message.split(",")) {
+                Matcher frameRateMatcher = VIDEO_FRAME_RATE_PATTERN.matcher(token);
+                if (frameRateMatcher.find()) {
+                    return Double.parseDouble(frameRateMatcher.group("frame"));
+                }
+            }
+        }
+
+        return 0;
+    }
+
+    private String parseDuration(List<String> messages) {
+        for (String message : messages) {
+            for (String token : message.split(",")) {
+                Matcher videoDurationMatcher = VIDEO_DURATION_PATTERN.matcher(token);
+                if (videoDurationMatcher.find()) {
+                    return videoDurationMatcher.group("duration");
+                }
+            }
+        }
+
+        return null;
+    }
+
+    public static MediaInfo INVALID = new MediaInfo(new ArrayList<>());
 
     /**
      * second
@@ -42,33 +88,11 @@ public class MediaInfo {
 
     @Override
     public String toString() {
-        return "" + videoWidth + "x" + videoHeight + ", " + frameRate + "fps, " + durationDescription;
-    }
-
-    private void parseMediaInfo(List<String> messages) {
-        for (String message : messages) {
-            if (message.startsWith("Output ")) {
-                break;
-            }
-
-            for (String token : message.split(",")) {
-                Matcher videoSizeMatcher = VIDEO_SIZE_PATTERN.matcher(token);
-                if (videoSizeMatcher.find()) {
-                    videoWidth = Integer.parseInt(videoSizeMatcher.group("width"));
-                    videoHeight = Integer.parseInt(videoSizeMatcher.group("height"));
-                }
-
-                Matcher frameRateMatcher = VIDEO_FRAME_RATE_PATTERN.matcher(token);
-                if (frameRateMatcher.find()) {
-                    frameRate = Double.parseDouble(frameRateMatcher.group("frame"));
-                }
-
-                Matcher videoDurationMatcher = VIDEO_DURATION_PATTERN.matcher(token);
-                if (videoDurationMatcher.find()) {
-                    durationDescription = videoDurationMatcher.group("duration");
-                }
-            }
+        if (videoSize == null || frameRate <= 0 || durationDescription == null) {
+            return "";
         }
+
+        return "" + videoSize.x + "x" + videoSize.y + ", " + frameRate + "fps, " + durationDescription;
     }
 
 }
