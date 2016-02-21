@@ -1,11 +1,11 @@
 import com.sun.javafx.binding.StringFormatter;
 import javafx.beans.property.DoubleProperty;
 
-public class DurationStringFormatter extends StringFormatter {
+public class DurationStringBinding extends StringFormatter {
 
     private DoubleProperty durationProperty;
 
-    public DurationStringFormatter(DoubleProperty durationProperty) {
+    public DurationStringBinding(DoubleProperty durationProperty) {
         this.durationProperty = durationProperty;
         super.bind(durationProperty);
     }

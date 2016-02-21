@@ -16,6 +16,8 @@ public class MediaInfo {
 
     private static final Pattern VIDEO_DURATION_PATTERN = Pattern.compile("Duration: (?<duration>\\S+)", Pattern.CASE_INSENSITIVE);
 
+    public static MediaInfo INVALID = new MediaInfo(new ArrayList<>());
+
     private final Point videoSize;
 
     private final double frameRate;
@@ -67,10 +69,8 @@ public class MediaInfo {
             }
         }
 
-        return null;
+        return "";
     }
-
-    public static MediaInfo INVALID = new MediaInfo(new ArrayList<>());
 
     /**
      * second

@@ -18,11 +18,10 @@ import javafx.stage.FileChooser;
 import media.GifConvertParameters;
 import media.MediaConvertResult;
 import media.MediaConverter;
-import media.MediaInfo;
 import org.controlsfx.control.NotificationPane;
 import org.controlsfx.control.RangeSlider;
 import org.controlsfx.control.StatusBar;
-import org.controlsfx.control.spreadsheet.StringConverterWithFormat;
+import org.controlsfx.control.ToggleSwitch;
 import ui.SmartFileChooser;
 import util.Looper;
 import util.MessageTask;
@@ -74,6 +73,9 @@ public class MainController implements Initializable {
     private CheckMenuItem addLogoView;
 
     @FXML
+    private ToggleSwitch gifConvertRangeDetail;
+
+    @FXML
     private Label mediaInfoView;
 
     @FXML
@@ -90,22 +92,10 @@ public class MainController implements Initializable {
 
         statusBar.progressProperty().bind(mediaConverter.convertProgressProperty());
         mediaInfoView.textProperty().bind(mediaConverter.mediaInfoPropertyProperty().asString());
-        gifStartTimeView.textProperty().bind(new DurationStringFormatter(gifConvertRange.lowValueProperty()));
-        gifEndTimeView.textProperty().bind(new DurationStringFormatter(gifConvertRange.highValueProperty()));
+        gifStartTimeView.textProperty().bind(new DurationStringBinding(gifConvertRange.lowValueProperty()));
+        gifEndTimeView.textProperty().bind(new DurationStringBinding(gifConvertRange.highValueProperty()));
 
-        gifConvertRange.setLabelFormatter(new StringConverterWithFormat<Number>() {
-
-            @Override
-            public String toString(Number object) {
-                return DurationStringFormatter.formatMediaDuration(object.intValue());
-            }
-
-            @Override
-            public Number fromString(String string) {
-                return Double.valueOf(string);
-            }
-
-        });
+        gifConvertRange.setLabelFormatter(new DurationStringConverter());
 
         {
             final ChangeListener<Number> convertParameterChangeListener = new ChangeListener<Number>() {
@@ -143,6 +133,15 @@ public class MainController implements Initializable {
             public void changed(ObservableValue<? extends File> observable, File oldValue, File newValue) {
                 initRangeSlide();
                 reloadMediaConvert(0);
+            }
+
+        });
+
+        gifConvertRangeDetail.selectedProperty().addListener(new ChangeListener<Boolean>() {
+
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                reloadRangeSlide();
             }
 
         });
@@ -196,22 +195,27 @@ public class MainController implements Initializable {
 
     private void initRangeSlide() {
         gifConvertRangePane.setVisible(false);
-        // make sure low/high value will not reset by min/max
+        // default convert from 00:00 to 00:10
         gifConvertRange.setMin(0);
-        gifConvertRange.setMax(60);
+        gifConvertRange.setMax(10);
         gifConvertRange.setLowValue(0);
         gifConvertRange.setHighValue(10);
     }
 
-    private void reloadRangeSlide(MediaInfo info) {
+    private void reloadRangeSlide() {
         gifConvertRangePane.setVisible(true);
 
-        if (info.getDuration() < 60) {
-            gifConvertRange.setMajorTickUnit(5);
+        if (gifConvertRangeDetail.isSelected()) {
+            final double mediaDuration = mediaConverter.mediaInfoPropertyProperty().get().getDuration();
+            gifConvertRange.setMin(Math.max(0, gifConvertRange.getLowValue() - 30));
+            gifConvertRange.setMax(Math.min(mediaDuration, gifConvertRange.getHighValue() + 30));
+            gifConvertRange.setMajorTickUnit((gifConvertRange.getMax() - gifConvertRange.getMin()) / 10);
         } else {
-            gifConvertRange.setMajorTickUnit(info.getDuration() / 10);
+            final double mediaDuration = mediaConverter.mediaInfoPropertyProperty().get().getDuration();
+            gifConvertRange.setMajorTickUnit(Math.max(10, mediaDuration / 10));
+            gifConvertRange.setMin(0);
+            gifConvertRange.setMax(mediaDuration);
         }
-        gifConvertRange.setMax(info.getDuration());
     }
 
     private void reloadMediaConvert(long delay) {
@@ -247,7 +251,7 @@ public class MainController implements Initializable {
             e.printStackTrace();
         }
 
-        reloadRangeSlide(result.getMediaInfo());
+        reloadRangeSlide();
 
         if (result.isCanceled()) {
         } else if (result.isSuccess()) {
