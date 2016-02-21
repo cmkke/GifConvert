@@ -18,6 +18,7 @@ import javafx.stage.FileChooser;
 import media.GifConvertParameters;
 import media.MediaConvertResult;
 import media.MediaConverter;
+import media.MediaInfo;
 import org.controlsfx.control.NotificationPane;
 import org.controlsfx.control.RangeSlider;
 import org.controlsfx.control.StatusBar;
@@ -137,6 +138,15 @@ public class MainController implements Initializable {
 
         });
 
+        mediaConverter.mediaInfoPropertyProperty().addListener(new ChangeListener<MediaInfo>() {
+
+            @Override
+            public void changed(ObservableValue<? extends MediaInfo> observable, MediaInfo oldValue, MediaInfo newValue) {
+                reloadRangeSlide();
+            }
+
+        });
+
         gifConvertRangeDetail.selectedProperty().addListener(new ChangeListener<Boolean>() {
 
             @Override
@@ -250,8 +260,6 @@ public class MainController implements Initializable {
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
-
-        reloadRangeSlide();
 
         if (result.isCanceled()) {
         } else if (result.isSuccess()) {
