@@ -17,6 +17,10 @@ public class CommandExecutor {
 
     private final File executorFile;
 
+    private Process currentProcess;
+
+    private boolean isCanceled;
+
     public CommandExecutor(Class loaderClass, String executorName) {
         this.loaderClass = loaderClass;
         this.executorName = executorName;
@@ -51,8 +55,6 @@ public class CommandExecutor {
 
         copyExecutorToTempDirectory();
     }
-
-    private Process currentProcess;
 
     public CommandExecuteResult execute(CommandParameters commandParameters) {
         return execute(commandParameters, null);
@@ -113,11 +115,5 @@ public class CommandExecutor {
             isCanceled = true;
         }
     }
-
-    public boolean isCanceled() {
-        return isCanceled;
-    }
-
-    private boolean isCanceled;
 
 }

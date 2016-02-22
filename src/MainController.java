@@ -103,6 +103,7 @@ public class MainController implements Initializable {
 
                 @Override
                 public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                    reloadRangeSlide();
                     reloadMediaConvert(1000);
                 }
 
@@ -215,13 +216,13 @@ public class MainController implements Initializable {
     private void reloadRangeSlide() {
         gifConvertRangePane.setVisible(true);
 
+        final double mediaDuration = Math.max(10, mediaConverter.mediaInfoPropertyProperty().get().getDuration());
+
         if (gifConvertRangeDetail.isSelected()) {
-            final double mediaDuration = mediaConverter.mediaInfoPropertyProperty().get().getDuration();
-            gifConvertRange.setMin(Math.max(0, gifConvertRange.getLowValue() - 30));
-            gifConvertRange.setMax(Math.min(mediaDuration, gifConvertRange.getHighValue() + 30));
+            gifConvertRange.setMin(Math.max(0, gifConvertRange.getLowValue() - 10));
+            gifConvertRange.setMax(Math.min(mediaDuration, gifConvertRange.getHighValue() + 10));
             gifConvertRange.setMajorTickUnit((gifConvertRange.getMax() - gifConvertRange.getMin()) / 10);
         } else {
-            final double mediaDuration = mediaConverter.mediaInfoPropertyProperty().get().getDuration();
             gifConvertRange.setMajorTickUnit(Math.max(10, mediaDuration / 10));
             gifConvertRange.setMin(0);
             gifConvertRange.setMax(mediaDuration);
