@@ -1,12 +1,11 @@
 package command.executor;
 
 import debug.Debug;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class CommandExecutor {
@@ -17,7 +16,7 @@ public class CommandExecutor {
 
     private final File executorFile;
 
-    private Process currentProcess;
+    private Process executor;
 
     private boolean isCanceled;
 
@@ -28,9 +27,8 @@ public class CommandExecutor {
     }
 
     private void copyExecutorToTempDirectory() {
-        try {
-            OutputStream outputStream = new FileOutputStream(executorFile);
-            InputStream inputStream = loaderClass.getResourceAsStream(executorName);
+        try (OutputStream outputStream = new FileOutputStream(executorFile);
+             InputStream inputStream = loaderClass.getResourceAsStream(executorName)) {
             byte[] buffer = new byte[4096];
             while (true) {
                 int readCount = inputStream.read(buffer);
@@ -40,8 +38,6 @@ public class CommandExecutor {
 
                 outputStream.write(buffer, 0, readCount);
             }
-            inputStream.close();
-            outputStream.close();
             System.out.println("executor has copied to temp directory");
         } catch (IOException e) {
             e.printStackTrace();
@@ -56,19 +52,17 @@ public class CommandExecutor {
         copyExecutorToTempDirectory();
     }
 
-    public CommandExecuteResult execute(CommandParameters commandParameters) {
-        return execute(commandParameters, null);
+    private final StringProperty executorStatus = new SimpleStringProperty();
+
+    public StringProperty executorStatusProperty() {
+        return executorStatus;
     }
 
-    public CommandExecuteResult execute(CommandParameters commandParameters, ObservableList<String> processStatus) {
+    public CommandExecuteResult execute(CommandParameters commandParameters) {
         ensureExecutorAvailable();
 
-        if (currentProcess != null) {
+        if (executor != null) {
             throw new RuntimeException("cannot execute two process together");
-        }
-
-        if (processStatus == null) {
-            processStatus = FXCollections.observableArrayList();
         }
 
         final long startTime = System.currentTimeMillis();
@@ -79,39 +73,37 @@ public class CommandExecutor {
             ProcessBuilder processBuilder = new ProcessBuilder(command);
 //            processBuilder.directory(executorFile.getParentFile());
             processBuilder.redirectErrorStream(true);
-            currentProcess = processBuilder.start();
+            executor = processBuilder.start();
             isCanceled = false;
 
-            BufferedReader reader = new BufferedReader(new InputStreamReader(currentProcess.getInputStream()));
+            List<String> messages = new ArrayList<>();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(executor.getInputStream()));
             while (true) {
-                String message = reader.readLine();
-                if (message == null) {
+                executorStatus.set(reader.readLine());
+                if (executorStatus.get() == null) {
                     break;
                 }
 
                 if (Debug.ENABLE) {
-                    System.out.println(message);
+                    System.out.println(executorStatus.get());
                 }
 
-                processStatus.add(message);
+                messages.add(executorStatus.get());
             }
 
-            return new CommandExecuteResult(currentProcess.waitFor() == 0,
-                    isCanceled,
-                    System.currentTimeMillis() - startTime,
-                    Arrays.asList(processStatus.toArray(new String[processStatus.size()])));
+            return new CommandExecuteResult(executor.waitFor() == 0, isCanceled, System.currentTimeMillis() - startTime, messages);
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         } finally {
-            currentProcess = null;
+            executor = null;
         }
 
         return null;
     }
 
     public void cancel() {
-        if (currentProcess != null) {
-            currentProcess.destroy();
+        if (executor != null) {
+            executor.destroy();
             isCanceled = true;
         }
     }

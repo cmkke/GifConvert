@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="media_covert">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/out/artifacts/media_convert/media_covert.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

@@ -1,11 +1,13 @@
 package media;
 
+import command.executor.CommandParameters;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class GifConvertParameters extends MediaCommandParameters {
+public class GifConvertParameters implements CommandParameters {
 
     public static final List<String> SUPPORT_VIDEO_FORMAT = Arrays.asList("*.mp4", "*.avi", "*.mkv", "*.mov", "*.flv");
 
@@ -13,19 +15,32 @@ public class GifConvertParameters extends MediaCommandParameters {
 
     private final String logo;
 
-    /**
-     * @param mediaFile
-     * @param gifFrameRate
-     * @param gifScale         0~1
-     * @param convertStartTime In seconds
-     * @param convertDuration  In seconds
-     * @param reverse
-     * @param logo
-     */
-    public GifConvertParameters(File mediaFile, double gifFrameRate, double gifScale, double convertStartTime, double convertDuration, boolean reverse, String logo) {
-        super(mediaFile, convertDuration, gifFrameRate, gifScale, convertStartTime);
+    private final File media;
+
+    private final double outputFrameRate;
+
+    private final double outputScale;
+
+    private final double convertStartTime;
+
+    private final double convertDuration;
+
+    public GifConvertParameters(File media, double outputFrameRate, double outputScale, double convertStartTime, double convertDuration, boolean reverse, String logo) {
+        this.media = media;
+        this.outputFrameRate = outputFrameRate;
+        this.outputScale = outputScale;
+        this.convertStartTime = convertStartTime;
+        this.convertDuration = convertDuration;
         this.reverse = reverse;
         this.logo = logo;
+    }
+
+    public double getConvertDuration() {
+        return convertDuration;
+    }
+
+    public File getMedia() {
+        return media;
     }
 
     /**
@@ -36,24 +51,24 @@ public class GifConvertParameters extends MediaCommandParameters {
         List<String> command = new ArrayList<>();
         command.add("-y");
         command.add("-ss");
-        command.add("" + getConvertStartTime());
+        command.add("" + convertStartTime);
         command.add("-i");
-        command.add(getInputFile().getAbsolutePath());
+        command.add(media.getAbsolutePath());
         command.add("-i");
         command.add(new Logo(logo).create().getAbsolutePath());
 
         if (!reverse) {
             command.add("-t");
-            command.add("" + Math.min(30, getConvertDuration()));
+            command.add("" + Math.min(30, convertDuration));
         }
 
         command.add("-r");
-        command.add("" + getOutputFrameRate());
+        command.add("" + outputFrameRate);
 
         command.add("-filter_complex");
-        String filter = "scale=iw*" + getOutputScale() + ":ih*" + getOutputScale();
+        String filter = "scale=iw*" + outputScale + ":ih*" + outputScale;
         if (reverse) {
-            filter += ",trim=end=" + Math.min(30, getConvertDuration()) + ",reverse";
+            filter += ",trim=end=" + Math.min(30, convertDuration) + ",reverse";
         }
         filter += ",overlay=x=W-w-10:y=H-h-10";
         command.add(filter);
@@ -62,9 +77,8 @@ public class GifConvertParameters extends MediaCommandParameters {
         return command;
     }
 
-    @Override
     public File getOutputFile() {
-        return new File(getInputFile().getParent(), getInputFile().getName() + ".gif");
+        return new File(media.getParent(), media.getName() + ".gif");
     }
 
 }

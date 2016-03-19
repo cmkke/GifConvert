@@ -4,13 +4,14 @@
     <exclude-output />
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src_media" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src_looper" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src_command" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src_looper" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src_media" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src_ui" isTestSource="false" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="libs" level="project" />
+    <orderEntry type="library" name="controlsfx-8.40.10" level="project" />
+    <orderEntry type="library" name="GifConvert" level="project" />
   </component>
 </module>

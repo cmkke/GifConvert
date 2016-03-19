@@ -8,8 +8,11 @@ import java.util.List;
 public class Looper {
 
     private final static ThreadLocal<Looper> LOOPER_THREAD_LOCAL = new ThreadLocal<>();
+
     private final Object lock = new Object();
+
     private final List<Message> messages = new ArrayList<>();
+
     private Message currentMessage;
 
     private Looper() {
@@ -30,30 +33,32 @@ public class Looper {
 
             @Override
             public void run() {
-                try {
-                    while (true) {
-                        synchronized (looper.lock) {
-
-                            if (looper.messages.isEmpty()) {
+                while (true) {
+                    synchronized (looper.lock) {
+                        if (looper.messages.isEmpty()) {
+                            try {
                                 looper.lock.wait();
-                                continue;
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
                             }
-
-                            final long waitTime = looper.messages.get(0).getTimeRunAt() - System.currentTimeMillis();
-                            if (waitTime > 0) {
-                                looper.lock.wait(waitTime);
-                                continue;
-                            }
-
-
-                            looper.currentMessage = looper.messages.remove(0);
+                            continue;
                         }
 
-                        looper.currentMessage.run();
-                        looper.currentMessage = null;
+                        final long waitTime = looper.messages.get(0).getTimeRunAt() - System.currentTimeMillis();
+                        if (waitTime > 0) {
+                            try {
+                                looper.lock.wait(waitTime);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                            continue;
+                        }
+
+                        looper.currentMessage = looper.messages.remove(0);
                     }
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+
+                    looper.currentMessage.run();
+                    looper.currentMessage = null;
                 }
             }
 
@@ -94,6 +99,10 @@ public class Looper {
         synchronized (looper.lock) {
             looper.messages.clear();
             looper.lock.notifyAll();
+        }
+
+        if (looper.currentMessage != null) {
+            looper.currentMessage.cancel();
         }
     }
 

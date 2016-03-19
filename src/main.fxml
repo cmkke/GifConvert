@@ -9,6 +9,7 @@
 <?import org.controlsfx.control.RangeSlider?>
 <?import org.controlsfx.control.StatusBar?>
 <?import org.controlsfx.control.ToggleSwitch?>
+<?import javafx.scene.image.Image?>
 <NotificationPane xmlns:fx="http://javafx.com/fxml/1" prefHeight="600.0" prefWidth="900.0"
                   xmlns="http://javafx.com/javafx/8"
                   fx:controller="MainController" fx:id="notificationPane" showFromTop="false">
@@ -35,9 +36,9 @@
                         </Menu>
                         <Menu text="编辑">
                             <items>
-                                <CheckMenuItem text="反序输出" fx:id="reverseGifView">
+                                <CheckMenuItem text="反序输出" fx:id="reverseOutput">
                                 </CheckMenuItem>
-                                <CheckMenuItem text="添加时间水印" fx:id="addLogoView">
+                                <CheckMenuItem text="添加时间水印" fx:id="addLogo">
                                 </CheckMenuItem>
                             </items>
                         </Menu>
@@ -48,15 +49,18 @@
             <center>
                 <BorderPane BorderPane.alignment="CENTER">
                     <center>
-                        <ImageView fx:id="gifPreviewView" fitHeight="450.0" fitWidth="700.0" pickOnBounds="true"
+                        <ImageView fx:id="outputPreview" fitHeight="450.0" fitWidth="700.0" pickOnBounds="true"
                                    preserveRatio="true" BorderPane.alignment="CENTER">
+                            <image>
+                                <Image url="@loading.gif"/>
+                            </image>
                         </ImageView>
                     </center>
 
                     <right>
                         <VBox>
                             <Label text="帧率："/>
-                            <Slider showTickMarks="true" fx:id="gifFrameRateView"
+                            <Slider showTickMarks="true" fx:id="outputFrameRate"
                                     showTickLabels="true" min="1" max="25" minorTickCount="2" value="7"
                                     majorTickUnit="5"/>
 
@@ -64,7 +68,7 @@
 
                             <Label text="缩放："/>
                             <Slider showTickMarks="true"
-                                    fx:id="gifScaleView" value="1"
+                                    fx:id="outputScale" value="1"
                                     showTickLabels="true" min="0.1" max="1" minorTickCount="3"
                                     majorTickUnit="0.3"/>
 
@@ -75,11 +79,11 @@
                     </right>
 
                     <bottom>
-                        <BorderPane BorderPane.alignment="CENTER" fx:id="gifConvertRangePane" visible="false">
+                        <BorderPane BorderPane.alignment="CENTER" fx:id="inputMediaDurationPane" visible="false">
                             <center>
                                 <BorderPane BorderPane.alignment="CENTER">
                                     <center>
-                                        <RangeSlider fx:id="gifConvertRange" showTickMarks="true"
+                                        <RangeSlider fx:id="inputMediaDuration" showTickMarks="true"
                                                      minorTickCount="5"
                                                      showTickLabels="true"
                                                      BorderPane.alignment="CENTER">
@@ -91,17 +95,17 @@
                                     </center>
 
                                     <left>
-                                        <Label fx:id="gifStartTimeView"/>
+                                        <Label fx:id="inputMediaStartTimeView"/>
                                     </left>
 
                                     <right>
-                                        <Label fx:id="gifEndTimeView"/>
+                                        <Label fx:id="inputMediaEndTimeView"/>
                                     </right>
                                 </BorderPane>
                             </center>
 
                             <right>
-                                <ToggleSwitch fx:id="gifConvertRangeDetail" text="微调">
+                                <ToggleSwitch fx:id="inputMediaDurationDetail" text="微调">
                                     <BorderPane.margin>
                                         <Insets left="30.0" right="30.0"/>
                                     </BorderPane.margin>

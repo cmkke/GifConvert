@@ -1,25 +1,24 @@
 package media;
 
+import command.executor.CommandParameters;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MediaInfoParameters extends MediaCommandParameters {
+public class MediaInfoParameters implements CommandParameters {
 
-    public MediaInfoParameters(File mediaFile) {
-        super(mediaFile, -1, -1, -1, -1);
+    public MediaInfoParameters(File media) {
+        this.media = media;
     }
 
-    @Override
-    public File getOutputFile() {
-        return null;
-    }
+    private final File media;
 
     @Override
     public List<String> buildConvertCommand() {
         List<String> command = new ArrayList<>();
         command.add("-i");
-        command.add(getInputFile().getAbsolutePath());
+        command.add(media.getAbsolutePath());
         return command;
     }
 

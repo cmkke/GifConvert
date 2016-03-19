@@ -12,7 +12,6 @@ public class Logo {
 
     public Logo(String logo) {
         this.logo = logo;
-
     }
 
     public File create() {

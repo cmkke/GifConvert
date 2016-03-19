@@ -5,6 +5,8 @@ import command.executor.CommandExecuteResult;
 import command.executor.CommandExecutor;
 import javafx.application.Platform;
 import javafx.beans.property.*;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -26,46 +28,38 @@ public class MediaConverter extends CommandExecutor {
         super(MediaConverter.class, CONVERTER_NAME);
     }
 
-    public MediaConvertResult convert(@NotNull MediaCommandParameters convertInfo) {
-        if (convertInfo.getOutputFile().exists() && convertInfo.getOutputFile().exists()) {
-            convertInfo.getOutputFile().delete();
-        }
-
+    public MediaConvertResult convert(@NotNull GifConvertParameters convertInfo) {
         updateProgressOnUIiThread(Double.NEGATIVE_INFINITY);
 
-        CommandExecuteResult mediaInfoExecuteResult = execute(new MediaInfoParameters(convertInfo.getInputFile()));
+        CommandExecuteResult mediaInfoExecuteResult = execute(new MediaInfoParameters(convertInfo.getMedia()));
         if (mediaInfoExecuteResult.isCanceled()) {
-            return new MediaConvertResult(null, null, mediaInfoExecuteResult);
+            return null;
         }
         MediaInfo mediaInfo = new MediaInfo(mediaInfoExecuteResult.getMessages());
         updateMediaInfoOnUiThread(mediaInfo);
 
-        ListChangeListener<String> changeListener = new ListChangeListener<String>() {
+        ChangeListener<String> progressListener = new ChangeListener<String>() {
 
             @Override
-            public void onChanged(Change<? extends String> c) {
-                while (c.next()) {
-                    if (c.wasAdded()) {
-                        for (String message : c.getAddedSubList()) {
-                            Matcher matcher = CONVERT_PROGRESS_PATTERN.matcher(message);
-                            if (matcher.matches()) {
-                                final double duration = Integer.parseInt(matcher.group("hour")) * 60 * 60 + Integer.parseInt(matcher.group("minute")) * 60 + Integer.parseInt(matcher.group("second"));
-                                updateProgressOnUIiThread(duration / convertInfo.getConvertDuration());
-                            }
-                        }
-                    }
+            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                if (newValue == null) {
+                    return;
+                }
+
+                Matcher matcher = CONVERT_PROGRESS_PATTERN.matcher(newValue);
+                if (matcher.matches()) {
+                    final double duration = Integer.parseInt(matcher.group("hour")) * 60 * 60 + Integer.parseInt(matcher.group("minute")) * 60 + Integer.parseInt(matcher.group("second"));
+                    updateProgressOnUIiThread(duration / convertInfo.getConvertDuration());
                 }
             }
 
         };
-
-        ObservableList<String> processStatus = FXCollections.observableArrayList();
-        processStatus.addListener(changeListener);
-        CommandExecuteResult convertResult = execute(convertInfo, processStatus);
-        processStatus.removeListener(changeListener);
+        executorStatusProperty().addListener(progressListener);
+        CommandExecuteResult convertResult = execute(convertInfo);
+        executorStatusProperty().removeListener(progressListener);
         updateProgressOnUIiThread(Double.NaN);
 
-        return new MediaConvertResult(mediaInfo, convertInfo.getOutputFile(), convertResult);
+        return new MediaConvertResult(mediaInfo, convertInfo.getOutputFile(), convertResult.isSuccess(), convertResult.isCanceled(), convertResult.getCostTime());
     }
 
     public DoubleProperty convertProgressProperty() {
