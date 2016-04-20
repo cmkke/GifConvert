@@ -43,21 +43,23 @@ public class MainController implements Initializable {
 
     private static final Object MSG_CONVERT_MEDIA = new Object();
 
+    private static final Object MSG_RELOAD_MEDIA_INFO = new Object();
+
     private final MediaConverter mediaConverter = new MediaConverter();
 
     private final Image loadingImage = new Image(MainController.class.getResource("loading.gif").toExternalForm(), true);
 
     @FXML
-    private ImageView outputPreview;
+    private ImageView outputPreviewView;
 
     @FXML
-    private Slider outputFrameRate;
+    private Slider outputFrameRateView;
 
     @FXML
-    private Slider outputScale;
+    private Slider outputScaleView;
 
     @FXML
-    private RangeSlider inputMediaDuration;
+    private RangeSlider inputMediaDurationView;
 
     @FXML
     private Label inputMediaStartTimeView;
@@ -69,13 +71,13 @@ public class MainController implements Initializable {
     private Pane inputMediaDurationPane;
 
     @FXML
-    private CheckMenuItem reverseOutput;
+    private CheckMenuItem reverseOutputView;
 
     @FXML
-    private CheckMenuItem addLogo;
+    private CheckMenuItem addLogoView;
 
     @FXML
-    private ToggleSwitch inputMediaDurationDetail;
+    private ToggleSwitch detailView;
 
     @FXML
     private Label mediaInfoView;
@@ -92,26 +94,37 @@ public class MainController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         statusBar.progressProperty().bind(mediaConverter.convertProgressProperty());
         mediaInfoView.textProperty().bind(mediaConverter.mediaInfoPropertyProperty().asString());
-        inputMediaStartTimeView.textProperty().bind(new DurationStringBinding(inputMediaDuration.lowValueProperty()));
-        inputMediaEndTimeView.textProperty().bind(new DurationStringBinding(inputMediaDuration.highValueProperty()));
-
-        inputMediaDuration.setLabelFormatter(new DurationStringConverter());
+        inputMediaStartTimeView.textProperty().bind(new DurationStringBinding(inputMediaDurationView.lowValueProperty()));
+        inputMediaEndTimeView.textProperty().bind(new DurationStringBinding(inputMediaDurationView.highValueProperty()));
+        inputMediaDurationView.setLabelFormatter(new DurationStringConverter());
 
         {
             final ChangeListener<Number> convertParameterChangeListener = new ChangeListener<Number>() {
 
                 @Override
                 public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                    reloadRangeSlide();
+                    reloadConvertDuration();
                     reloadMediaConvert(1000);
                 }
 
             };
 
-            inputMediaDuration.lowValueProperty().addListener(convertParameterChangeListener);
-            inputMediaDuration.highValueProperty().addListener(convertParameterChangeListener);
-            outputScale.valueProperty().addListener(convertParameterChangeListener);
-            outputFrameRate.valueProperty().addListener(convertParameterChangeListener);
+            inputMediaDurationView.lowValueProperty().addListener(convertParameterChangeListener);
+            inputMediaDurationView.highValueProperty().addListener(convertParameterChangeListener);
+        }
+
+        {
+            final ChangeListener<Number> convertParameterChangeListener = new ChangeListener<Number>() {
+
+                @Override
+                public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                    reloadMediaConvert(1000);
+                }
+
+            };
+
+            outputScaleView.valueProperty().addListener(convertParameterChangeListener);
+            outputFrameRateView.valueProperty().addListener(convertParameterChangeListener);
         }
 
         {
@@ -124,16 +137,15 @@ public class MainController implements Initializable {
 
             };
 
-            reverseOutput.selectedProperty().addListener(convertParameterChangeListener);
-            addLogo.selectedProperty().addListener(convertParameterChangeListener);
+            reverseOutputView.selectedProperty().addListener(convertParameterChangeListener);
+            addLogoView.selectedProperty().addListener(convertParameterChangeListener);
         }
 
         inputMedia.addListener(new ChangeListener<File>() {
 
             @Override
             public void changed(ObservableValue<? extends File> observable, File oldValue, File newValue) {
-                initMediaConvertDuration();
-                reloadMediaConvert(0);
+                reloadMediaInfo();
             }
 
         });
@@ -142,21 +154,21 @@ public class MainController implements Initializable {
 
             @Override
             public void changed(ObservableValue<? extends MediaInfo> observable, MediaInfo oldValue, MediaInfo newValue) {
-                reloadRangeSlide();
+                reloadConvertDuration();
             }
 
         });
 
-        inputMediaDurationDetail.selectedProperty().addListener(new ChangeListener<Boolean>() {
+        detailView.selectedProperty().addListener(new ChangeListener<Boolean>() {
 
             @Override
             public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-                animateReloadRangeSlide();
+                animateReloadConvertDuration();
             }
 
         });
 
-        outputPreview.setOnDragOver(new EventHandler<DragEvent>() {
+        outputPreviewView.setOnDragOver(new EventHandler<DragEvent>() {
 
             @Override
             public void handle(DragEvent event) {
@@ -164,7 +176,7 @@ public class MainController implements Initializable {
             }
 
         });
-        outputPreview.setOnDragDropped(new EventHandler<DragEvent>() {
+        outputPreviewView.setOnDragDropped(new EventHandler<DragEvent>() {
 
             @Override
             public void handle(DragEvent event) {
@@ -182,7 +194,7 @@ public class MainController implements Initializable {
         SmartFileChooser fileChooser = new SmartFileChooser();
         fileChooser.addExtensionFilters(new FileChooser.ExtensionFilter("视频文件", GifConvertParameters.SUPPORT_VIDEO_FORMAT));
         fileChooser.addExtensionFilters(new FileChooser.ExtensionFilter("所有文件", "*.*"));
-        inputMedia.set(fileChooser.showOpenDialog(outputPreview.getScene().getWindow()));
+        inputMedia.set(fileChooser.showOpenDialog(outputPreviewView.getScene().getWindow()));
     }
 
     @FXML
@@ -202,16 +214,7 @@ public class MainController implements Initializable {
         }
     }
 
-    private void initMediaConvertDuration() {
-        inputMediaDurationPane.setVisible(false);
-        // default convert from 00:00 to 00:10
-        inputMediaDuration.setMin(0);
-        inputMediaDuration.setMax(10);
-        inputMediaDuration.setLowValue(0);
-        inputMediaDuration.setHighValue(10);
-    }
-
-    private void animateReloadRangeSlide() {
+    private void animateReloadConvertDuration() {
         if (mediaConverter.mediaInfoPropertyProperty().get() == MediaInfo.INVALID) {
             return;
         }
@@ -222,15 +225,15 @@ public class MainController implements Initializable {
         final double minTo;
         final double maxFrom;
         final double maxTo;
-        if (inputMediaDurationDetail.isSelected()) {
+        if (detailView.isSelected()) {
             minFrom = 0;
-            minTo = Math.max(0, inputMediaDuration.getLowValue() - 10);
+            minTo = Math.max(0, inputMediaDurationView.getLowValue() - 10);
             maxFrom = mediaDuration;
-            maxTo = Math.min(mediaDuration, inputMediaDuration.getHighValue() + 10);
+            maxTo = Math.min(mediaDuration, inputMediaDurationView.getHighValue() + 10);
         } else {
-            minFrom = inputMediaDuration.getMin();
+            minFrom = inputMediaDurationView.getMin();
             minTo = 0;
-            maxFrom = inputMediaDuration.getMax();
+            maxFrom = inputMediaDurationView.getMax();
             maxTo = mediaDuration;
         }
 
@@ -243,21 +246,21 @@ public class MainController implements Initializable {
         inputMediaDurationPane.setVisible(true);
     }
 
-    private void reloadRangeSlide() {
+    private void reloadConvertDuration() {
         if (mediaConverter.mediaInfoPropertyProperty().get() == MediaInfo.INVALID) {
             return;
         }
 
         final double mediaDuration = mediaConverter.mediaInfoPropertyProperty().get().getDuration();
 
-        if (inputMediaDurationDetail.isSelected()) {
-            inputMediaDuration.setMin(Math.max(0, inputMediaDuration.getLowValue() - 10));
-            inputMediaDuration.setMax(Math.min(mediaDuration, inputMediaDuration.getHighValue() + 10));
+        if (detailView.isSelected()) {
+            inputMediaDurationView.setMin(Math.max(0, inputMediaDurationView.getLowValue() - 10));
+            inputMediaDurationView.setMax(Math.min(mediaDuration, inputMediaDurationView.getHighValue() + 10));
         } else {
-            inputMediaDuration.setMin(0);
-            inputMediaDuration.setMax(mediaDuration);
+            inputMediaDurationView.setMin(0);
+            inputMediaDurationView.setMax(mediaDuration);
         }
-        inputMediaDuration.setMajorTickUnit((inputMediaDuration.getMax() - inputMediaDuration.getMin()) / 10);
+        inputMediaDurationView.setMajorTickUnit((inputMediaDurationView.getMax() - inputMediaDurationView.getMin()) / 10);
 
         inputMediaDurationPane.setVisible(true);
     }
@@ -284,15 +287,15 @@ public class MainController implements Initializable {
 
         @Override
         public void onAnimate(double progress) {
-            inputMediaDuration.setMin(calculate(minFrom, minTo, progress));
-            inputMediaDuration.setMax(calculate(maxFrom, maxTo, progress));
-            inputMediaDuration.setMajorTickUnit((inputMediaDuration.getMax() - inputMediaDuration.getMin()) / 10);
+            inputMediaDurationView.setMin(calculate(minFrom, minTo, progress));
+            inputMediaDurationView.setMax(calculate(maxFrom, maxTo, progress));
+            inputMediaDurationView.setMajorTickUnit((inputMediaDurationView.getMax() - inputMediaDurationView.getMin()) / 10);
         }
 
-    }
+        private double calculate(double from, double to, double progress) {
+            return from + (to - from) * progress;
+        }
 
-    public static double calculate(double from, double to, double progress) {
-        return from + (to - from) * progress;
     }
 
     private void reloadMediaConvert(long delay) {
@@ -309,7 +312,7 @@ public class MainController implements Initializable {
             return;
         }
 
-        if (inputMediaDuration.getHighValue() - inputMediaDuration.getLowValue() > 30) {
+        if (inputMediaDurationView.getHighValue() - inputMediaDurationView.getLowValue() > 30) {
             notificationPane.show("转换时间长度过长");
             return;
         }
@@ -317,8 +320,13 @@ public class MainController implements Initializable {
         Looper.postMessage(new ConvertMediaTask(delay));
     }
 
+    private void reloadMediaInfo() {
+        Looper.removeMessage(MSG_RELOAD_MEDIA_INFO);
+        Looper.postMessage(new ReloadMediaInfoTask());
+    }
+
     private void showLoadingImage() {
-        outputPreview.setImage(loadingImage);
+        outputPreviewView.setImage(loadingImage);
     }
 
     private void showLoadingFinish(MediaConvertResult result) {
@@ -327,7 +335,7 @@ public class MainController implements Initializable {
         }
 
         try {
-            outputPreview.setImage(new Image(result.getOutputFile().toURI().toURL().toExternalForm(), true));
+            outputPreviewView.setImage(new Image(result.getOutputFile().toURI().toURL().toExternalForm(), true));
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
@@ -372,6 +380,35 @@ public class MainController implements Initializable {
 
     }
 
+    private class ReloadMediaInfoTask extends MessageTask<Void> {
+
+        public ReloadMediaInfoTask() {
+            super(MSG_RELOAD_MEDIA_INFO, 0);
+        }
+
+        @Override
+        public void preTaskOnUi() {
+
+        }
+
+        @Override
+        public Void runTask() {
+            mediaConverter.getMediaInfo(inputMedia.get());
+            return null;
+        }
+
+        @Override
+        public void postTaskOnUi(Void result) {
+
+        }
+
+        @Override
+        public void cancel() {
+            mediaConverter.cancel();
+        }
+
+    }
+
     private class ConvertMediaTask extends MessageTask<MediaConvertResult> {
 
         public ConvertMediaTask(long delay) {
@@ -385,14 +422,14 @@ public class MainController implements Initializable {
 
         @Override
         public MediaConvertResult runTask() {
-            String logo = addLogo.isSelected() ? new SimpleDateFormat().format(new Date()) : " ";
+            String logo = addLogoView.isSelected() ? new SimpleDateFormat().format(new Date()) : " ";
             return mediaConverter.convert(
                     new GifConvertParameters(inputMedia.get(),
-                            outputFrameRate.getValue(),
-                            outputScale.getValue(),
-                            inputMediaDuration.getLowValue(),
-                            inputMediaDuration.getHighValue() - inputMediaDuration.getLowValue(),
-                            reverseOutput.isSelected(),
+                            outputFrameRateView.getValue(),
+                            outputScaleView.getValue(),
+                            inputMediaDurationView.getLowValue(),
+                            inputMediaDurationView.getHighValue() - inputMediaDurationView.getLowValue(),
+                            reverseOutputView.isSelected(),
                             logo));
         }
 

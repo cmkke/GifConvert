@@ -36,9 +36,9 @@
                         </Menu>
                         <Menu text="编辑">
                             <items>
-                                <CheckMenuItem text="反序输出" fx:id="reverseOutput">
+                                <CheckMenuItem text="反序输出" fx:id="reverseOutputView">
                                 </CheckMenuItem>
-                                <CheckMenuItem text="添加时间水印" fx:id="addLogo">
+                                <CheckMenuItem text="添加时间水印" fx:id="addLogoView">
                                 </CheckMenuItem>
                             </items>
                         </Menu>
@@ -49,7 +49,7 @@
             <center>
                 <BorderPane BorderPane.alignment="CENTER">
                     <center>
-                        <ImageView fx:id="outputPreview" fitHeight="450.0" fitWidth="700.0" pickOnBounds="true"
+                        <ImageView fx:id="outputPreviewView" fitHeight="450.0" fitWidth="700.0" pickOnBounds="true"
                                    preserveRatio="true" BorderPane.alignment="CENTER">
                             <image>
                                 <Image url="@loading.gif"/>
@@ -60,7 +60,7 @@
                     <right>
                         <VBox>
                             <Label text="帧率："/>
-                            <Slider showTickMarks="true" fx:id="outputFrameRate"
+                            <Slider showTickMarks="true" fx:id="outputFrameRateView"
                                     showTickLabels="true" min="1" max="25" minorTickCount="2" value="7"
                                     majorTickUnit="5"/>
 
@@ -68,7 +68,7 @@
 
                             <Label text="缩放："/>
                             <Slider showTickMarks="true"
-                                    fx:id="outputScale" value="1"
+                                    fx:id="outputScaleView" value="1"
                                     showTickLabels="true" min="0.1" max="1" minorTickCount="3"
                                     majorTickUnit="0.3"/>
 
@@ -83,7 +83,7 @@
                             <center>
                                 <BorderPane BorderPane.alignment="CENTER">
                                     <center>
-                                        <RangeSlider fx:id="inputMediaDuration" showTickMarks="true"
+                                        <RangeSlider fx:id="inputMediaDurationView" showTickMarks="true"
                                                      minorTickCount="5"
                                                      showTickLabels="true"
                                                      BorderPane.alignment="CENTER">
@@ -105,7 +105,7 @@
                             </center>
 
                             <right>
-                                <ToggleSwitch fx:id="inputMediaDurationDetail" text="微调">
+                                <ToggleSwitch fx:id="detailView" text="微调">
                                     <BorderPane.margin>
                                         <Insets left="30.0" right="30.0"/>
                                     </BorderPane.margin>

@@ -1,6 +1,5 @@
 package command.executor;
 
-import debug.Debug;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
@@ -8,7 +7,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CommandExecutor {
+public class Executor {
 
     private final Class loaderClass;
 
@@ -20,7 +19,7 @@ public class CommandExecutor {
 
     private boolean isCanceled;
 
-    public CommandExecutor(Class loaderClass, String executorName) {
+    public Executor(Class loaderClass, String executorName) {
         this.loaderClass = loaderClass;
         this.executorName = executorName;
         executorFile = new File(System.getProperty("java.io.tmpdir"), executorName);
@@ -29,7 +28,7 @@ public class CommandExecutor {
     private void copyExecutorToTempDirectory() {
         try (OutputStream outputStream = new FileOutputStream(executorFile);
              InputStream inputStream = loaderClass.getResourceAsStream(executorName)) {
-            byte[] buffer = new byte[4096];
+            byte[] buffer = new byte[4 * 1024];
             while (true) {
                 int readCount = inputStream.read(buffer);
                 if (readCount == -1) {
@@ -58,7 +57,7 @@ public class CommandExecutor {
         return executorStatus;
     }
 
-    public CommandExecuteResult execute(CommandParameters commandParameters) {
+    public ExecuteResult execute(Parameters parameters) {
         ensureExecutorAvailable();
 
         if (executor != null) {
@@ -69,7 +68,7 @@ public class CommandExecutor {
         try {
             List<String> command = new ArrayList<>();
             command.add(executorFile.getAbsolutePath());
-            command.addAll(commandParameters.buildConvertCommand());
+            command.addAll(parameters.build());
             ProcessBuilder processBuilder = new ProcessBuilder(command);
 //            processBuilder.directory(executorFile.getParentFile());
             processBuilder.redirectErrorStream(true);
@@ -84,14 +83,10 @@ public class CommandExecutor {
                     break;
                 }
 
-                if (Debug.ENABLE) {
-                    System.out.println(executorStatus.get());
-                }
-
                 messages.add(executorStatus.get());
             }
 
-            return new CommandExecuteResult(executor.waitFor() == 0, isCanceled, System.currentTimeMillis() - startTime, messages);
+            return new ExecuteResult(executor.waitFor() == 0, isCanceled, System.currentTimeMillis() - startTime, messages);
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         } finally {

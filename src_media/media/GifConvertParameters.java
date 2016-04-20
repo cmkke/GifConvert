@@ -1,13 +1,13 @@
 package media;
 
-import command.executor.CommandParameters;
+import command.executor.Parameters;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class GifConvertParameters implements CommandParameters {
+public class GifConvertParameters implements Parameters {
 
     public static final List<String> SUPPORT_VIDEO_FORMAT = Arrays.asList("*.mp4", "*.avi", "*.mkv", "*.mov", "*.flv");
 
@@ -47,7 +47,7 @@ public class GifConvertParameters implements CommandParameters {
      * ffmpeg [global_options] {[input_file_options] -i input_file} ... {[output_file_options] output_file} ...
      */
     @Override
-    public List<String> buildConvertCommand() {
+    public List<String> build() {
         List<String> command = new ArrayList<>();
         command.add("-y");
         command.add("-ss");

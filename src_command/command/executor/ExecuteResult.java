@@ -3,7 +3,7 @@ package command.executor;
 import java.text.NumberFormat;
 import java.util.List;
 
-public class CommandExecuteResult {
+public class ExecuteResult {
 
     protected final long costTime;
 
@@ -13,7 +13,7 @@ public class CommandExecuteResult {
 
     protected final List<String> messages;
 
-    public CommandExecuteResult(boolean success, boolean canceled, long costTime, List<String> messages) {
+    public ExecuteResult(boolean success, boolean canceled, long costTime, List<String> messages) {
         this.success = success;
         this.canceled = canceled;
         this.costTime = costTime;

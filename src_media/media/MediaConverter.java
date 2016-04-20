@@ -1,20 +1,18 @@
 package media;
 
 import com.sun.istack.internal.NotNull;
-import command.executor.CommandExecuteResult;
-import command.executor.CommandExecutor;
+import command.executor.ExecuteResult;
+import command.executor.Executor;
 import javafx.application.Platform;
 import javafx.beans.property.*;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
-import javafx.collections.ObservableList;
 
+import java.io.File;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class MediaConverter extends CommandExecutor {
+public class MediaConverter extends Executor {
 
     private static final String CONVERTER_NAME = "ffmpeg-20160213-git-588e2e3-win64-static.exe";
 
@@ -28,15 +26,17 @@ public class MediaConverter extends CommandExecutor {
         super(MediaConverter.class, CONVERTER_NAME);
     }
 
-    public MediaConvertResult convert(@NotNull GifConvertParameters convertInfo) {
-        updateProgressOnUIiThread(Double.NEGATIVE_INFINITY);
-
-        CommandExecuteResult mediaInfoExecuteResult = execute(new MediaInfoParameters(convertInfo.getMedia()));
+    public void getMediaInfo(File file){
+        ExecuteResult mediaInfoExecuteResult = execute(new MediaInfoParameters(file));
         if (mediaInfoExecuteResult.isCanceled()) {
-            return null;
+            return;
         }
         MediaInfo mediaInfo = new MediaInfo(mediaInfoExecuteResult.getMessages());
         updateMediaInfoOnUiThread(mediaInfo);
+    }
+
+    public MediaConvertResult convert(@NotNull GifConvertParameters convertInfo) {
+        updateProgressOnUIiThread(Double.NEGATIVE_INFINITY);
 
         ChangeListener<String> progressListener = new ChangeListener<String>() {
 
@@ -55,11 +55,11 @@ public class MediaConverter extends CommandExecutor {
 
         };
         executorStatusProperty().addListener(progressListener);
-        CommandExecuteResult convertResult = execute(convertInfo);
+        ExecuteResult convertResult = execute(convertInfo);
         executorStatusProperty().removeListener(progressListener);
         updateProgressOnUIiThread(Double.NaN);
 
-        return new MediaConvertResult(mediaInfo, convertInfo.getOutputFile(), convertResult.isSuccess(), convertResult.isCanceled(), convertResult.getCostTime());
+        return new MediaConvertResult(convertInfo.getOutputFile(), convertResult.isSuccess(), convertResult.isCanceled(), convertResult.getCostTime());
     }
 
     public DoubleProperty convertProgressProperty() {
