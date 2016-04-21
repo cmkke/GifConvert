@@ -51,13 +51,13 @@ public class Executor {
         copyExecutorToTempDirectory();
     }
 
-    private final StringProperty executorStatus = new SimpleStringProperty();
+    private final StringProperty status = new SimpleStringProperty();
 
-    public StringProperty executorStatusProperty() {
-        return executorStatus;
+    protected StringProperty statusProperty() {
+        return status;
     }
 
-    public ExecuteResult execute(Parameters parameters) {
+    protected ExecuteResult execute(Parameters parameters, boolean needMessages) {
         ensureExecutorAvailable();
 
         if (executor != null) {
@@ -78,12 +78,14 @@ public class Executor {
             List<String> messages = new ArrayList<>();
             BufferedReader reader = new BufferedReader(new InputStreamReader(executor.getInputStream()));
             while (true) {
-                executorStatus.set(reader.readLine());
-                if (executorStatus.get() == null) {
+                status.set(reader.readLine());
+                if (status.get() == null) {
                     break;
                 }
 
-                messages.add(executorStatus.get());
+                if (needMessages) {
+                    messages.add(status.get());
+                }
             }
 
             return new ExecuteResult(executor.waitFor() == 0, isCanceled, System.currentTimeMillis() - startTime, messages);
@@ -98,8 +100,8 @@ public class Executor {
 
     public void cancel() {
         if (executor != null) {
-            executor.destroy();
             isCanceled = true;
+            executor.destroy();
         }
     }
 

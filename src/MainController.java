@@ -92,7 +92,7 @@ public class MainController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        statusBar.progressProperty().bind(mediaConverter.convertProgressProperty());
+        statusBar.progressProperty().bind(mediaConverter.progressProperty());
         mediaInfoView.textProperty().bind(mediaConverter.mediaInfoPropertyProperty().asString());
         inputMediaStartTimeView.textProperty().bind(new DurationStringBinding(inputMediaDurationView.lowValueProperty()));
         inputMediaEndTimeView.textProperty().bind(new DurationStringBinding(inputMediaDurationView.highValueProperty()));
@@ -393,7 +393,7 @@ public class MainController implements Initializable {
 
         @Override
         public Void runTask() {
-            mediaConverter.getMediaInfo(inputMedia.get());
+            mediaConverter.updateMediaInfo(inputMedia.get());
             return null;
         }
 

@@ -18,7 +18,7 @@ public class MediaConverter extends Executor {
 
     private static final Pattern CONVERT_PROGRESS_PATTERN = Pattern.compile("frame=.+ fps=.+ q=.+ (size|Lsize)=.+ time=(?<hour>\\d{2}):(?<minute>\\d{2}):(?<second>\\d{2}).+ bitrate=.+", Pattern.CASE_INSENSITIVE);
 
-    private DoubleProperty convertProgress = new SimpleDoubleProperty(Double.NaN);
+    private DoubleProperty progress = new SimpleDoubleProperty(Double.NaN);
 
     private ObjectProperty<MediaInfo> mediaInfoProperty = new SimpleObjectProperty<>(MediaInfo.INVALID);
 
@@ -26,8 +26,10 @@ public class MediaConverter extends Executor {
         super(MediaConverter.class, CONVERTER_NAME);
     }
 
-    public void getMediaInfo(File file){
-        ExecuteResult mediaInfoExecuteResult = execute(new MediaInfoParameters(file));
+    public void updateMediaInfo(File file) {
+        updateProgressOnUIiThread(Double.NEGATIVE_INFINITY);
+        ExecuteResult mediaInfoExecuteResult = execute(new MediaInfoParameters(file), true);
+        updateProgressOnUIiThread(Double.NaN);
         if (mediaInfoExecuteResult.isCanceled()) {
             return;
         }
@@ -54,16 +56,16 @@ public class MediaConverter extends Executor {
             }
 
         };
-        executorStatusProperty().addListener(progressListener);
-        ExecuteResult convertResult = execute(convertInfo);
-        executorStatusProperty().removeListener(progressListener);
+        statusProperty().addListener(progressListener);
+        ExecuteResult convertResult = execute(convertInfo, false);
+        statusProperty().removeListener(progressListener);
         updateProgressOnUIiThread(Double.NaN);
 
         return new MediaConvertResult(convertInfo.getOutputFile(), convertResult.isSuccess(), convertResult.isCanceled(), convertResult.getCostTime());
     }
 
-    public DoubleProperty convertProgressProperty() {
-        return convertProgress;
+    public DoubleProperty progressProperty() {
+        return progress;
     }
 
     public ObjectProperty<MediaInfo> mediaInfoPropertyProperty() {
@@ -75,7 +77,7 @@ public class MediaConverter extends Executor {
 
             @Override
             public void run() {
-                convertProgress.set(progress);
+                MediaConverter.this.progress.set(progress);
             }
 
         });

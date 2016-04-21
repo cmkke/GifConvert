@@ -1,9 +1,0 @@
-<component name="ArtifactManager">
-  <artifact type="jar" name="GifConvert:jar">
-    <output-path>$PROJECT_DIR$/out/artifacts/GifConvert_jar</output-path>
-    <root id="archive" name="GifConvert.jar">
-      <element id="module-output" name="GifConvert" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/libs/controlsfx-8.40.10.jar" path-in-jar="/" />
-    </root>
-  </artifact>
-</component>
